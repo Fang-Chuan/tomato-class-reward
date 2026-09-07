@@ -1,0 +1,3164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>番茄老師｜班級獎勵抽卡系統</title>
+
+<style>
+:root{
+  --bg:#f7f3e9;
+  --paper:#fffdf8;
+  --panel:#f2f6f2;
+  --ink:#173a30;
+  --muted:#78857f;
+  --green:#35684f;
+  --green-dark:#28523f;
+  --green-light:#eaf2ed;
+  --red:#db514b;
+  --yellow:#f3b83f;
+  --line:#dedbd1;
+  --shadow:0 14px 36px rgba(35,55,46,.10);
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  min-height:100%;
+}
+
+body{
+  font-family:
+    "PingFang TC",
+    "Noto Sans TC",
+    "Microsoft JhengHei",
+    sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 15% 5%,rgba(243,184,63,.11),transparent 25%),
+    radial-gradient(circle at 90% 8%,rgba(53,104,79,.10),transparent 25%),
+    var(--bg);
+}
+
+button,input{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+button:disabled{
+  cursor:not-allowed;
+  opacity:.42;
+}
+
+.hidden{
+  display:none !important;
+}
+
+.app{
+  width:min(1600px,100%);
+  margin:auto;
+  padding:20px;
+}
+
+/* ==============================
+   HEADER
+============================== */
+
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.tomato{
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  background:#e95750;
+  position:relative;
+  flex:none;
+}
+
+.tomato:before{
+  content:"";
+  position:absolute;
+  width:28px;
+  height:16px;
+  background:#569360;
+  top:-5px;
+  left:14px;
+  border-radius:80% 20% 70% 20%;
+  transform:rotate(-15deg);
+}
+
+.brand h1{
+  margin:0;
+  font-size:clamp(23px,3vw,34px);
+}
+
+.brand p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.mode-switch{
+  display:flex;
+  gap:7px;
+  padding:5px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:rgba(255,255,255,.7);
+}
+
+.mode-btn{
+  min-height:43px;
+  padding:0 17px;
+  border:0;
+  border-radius:12px;
+  background:transparent;
+  color:var(--muted);
+  font-weight:900;
+}
+
+.mode-btn.active{
+  background:var(--green);
+  color:#fff;
+}
+
+/* ==============================
+   教師模式
+============================== */
+
+.teacher-grid{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:17px;
+}
+
+.panel{
+  background:rgba(255,253,248,.96);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:19px;
+  box-shadow:var(--shadow);
+}
+
+.panel-title{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:15px;
+}
+
+.panel-title h2{
+  margin:0;
+  font-size:19px;
+}
+
+.panel-title p{
+  margin:4px 0 0;
+  font-size:13px;
+  color:var(--muted);
+}
+
+.badge{
+  padding:7px 12px;
+  border-radius:999px;
+  background:var(--green-light);
+  color:var(--green);
+  font-size:13px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+/* ==============================
+   學生座號
+============================== */
+
+.student-buttons{
+  display:grid;
+  grid-template-columns:repeat(10,1fr);
+  gap:7px;
+}
+
+.student-btn{
+  min-height:47px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#fff;
+  color:var(--ink);
+  font-weight:900;
+  position:relative;
+}
+
+.student-btn:hover{
+  border-color:#8da99a;
+  transform:translateY(-1px);
+}
+
+.student-btn.active{
+  background:var(--green);
+  border-color:var(--green);
+  color:#fff;
+}
+
+.student-btn.qualified:after{
+  content:"";
+  position:absolute;
+  width:9px;
+  height:9px;
+  right:5px;
+  top:5px;
+  background:var(--yellow);
+  border-radius:50%;
+  box-shadow:0 0 0 2px #fff;
+}
+
+/* ==============================
+   學生資料
+============================== */
+
+.student-detail{
+  margin-top:15px;
+  padding:17px;
+  border-radius:19px;
+  background:var(--panel);
+  border:1px solid #dce7df;
+}
+
+.student-heading{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+
+.student-heading strong{
+  font-size:22px;
+}
+
+.text-btn{
+  border:0;
+  background:transparent;
+  color:var(--green);
+  font-weight:900;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+  margin-top:13px;
+}
+
+.stat{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px;
+}
+
+.stat small{
+  display:block;
+  color:var(--muted);
+}
+
+.stat b{
+  display:block;
+  margin-top:3px;
+  font-size:22px;
+}
+
+.progress-wrap{
+  margin-top:14px;
+}
+
+.progress-info{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  color:var(--muted);
+}
+
+.progress{
+  height:12px;
+  border-radius:999px;
+  background:#dfe5e0;
+  overflow:hidden;
+  margin-top:7px;
+}
+
+.progress-bar{
+  height:100%;
+  background:linear-gradient(90deg,#56856d,#88ad96);
+  width:0;
+  transition:width .25s;
+}
+
+.participation-actions{
+  display:grid;
+  grid-template-columns:1fr 70px;
+  gap:9px;
+  margin-top:14px;
+}
+
+.primary{
+  min-height:52px;
+  border:0;
+  border-radius:15px;
+  background:var(--green);
+  color:white;
+  font-weight:900;
+}
+
+.secondary{
+  min-height:52px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:white;
+  color:var(--ink);
+  font-weight:900;
+}
+
+.go-draw{
+  width:100%;
+  min-height:52px;
+  border:0;
+  border-radius:15px;
+  background:var(--red);
+  color:white;
+  font-weight:900;
+  margin-top:9px;
+}
+
+/* ==============================
+   卡池
+============================== */
+
+.pool-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+
+.pool-card{
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px 11px;
+  background:#fff;
+}
+
+.pool-card-top{
+  display:flex;
+  justify-content:space-between;
+  gap:7px;
+}
+
+.card-no{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:900;
+}
+
+.stars{
+  color:#e8aa28;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+.pool-card strong{
+  display:block;
+  margin-top:5px;
+  font-size:14px;
+}
+
+.stock-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:8px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.stock-control{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.stock-control button{
+  width:31px;
+  height:31px;
+  border-radius:9px;
+  border:1px solid var(--line);
+  background:#f7f7f3;
+  font-weight:900;
+}
+
+.stock-control b{
+  min-width:22px;
+  text-align:center;
+  color:var(--ink);
+}
+
+.pool-total{
+  display:flex;
+  justify-content:space-between;
+  margin-top:13px;
+  padding-top:13px;
+  border-top:1px solid var(--line);
+}
+
+.pool-total b{
+  font-size:20px;
+}
+
+/* ==============================
+   下方區域
+============================== */
+
+.bottom-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:17px;
+  margin-top:17px;
+}
+
+.history{
+  max-height:330px;
+  overflow:auto;
+}
+
+.history-item{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 0;
+  border-bottom:1px solid var(--line);
+}
+
+.history-item:last-child{
+  border-bottom:0;
+}
+
+.history-item strong{
+  font-size:14px;
+}
+
+.history-item span{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.empty{
+  color:var(--muted);
+  text-align:center;
+  padding:30px 10px;
+}
+
+.teacher-tools{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.tool-btn{
+  min-height:42px;
+  padding:0 14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:white;
+  color:var(--ink);
+  font-weight:900;
+}
+
+.danger{
+  color:#ae4039;
+}
+
+/* ==============================
+   抽卡模式
+============================== */
+
+.draw-mode{
+  min-height:calc(100vh - 40px);
+  display:flex;
+  flex-direction:column;
+}
+
+.draw-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+}
+
+.draw-brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.draw-brand .tomato{
+  width:45px;
+  height:45px;
+}
+
+.draw-brand h2{
+  margin:0;
+  font-size:20px;
+}
+
+.exit-draw{
+  min-height:44px;
+  padding:0 16px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:rgba(255,255,255,.8);
+  color:var(--green);
+  font-weight:900;
+}
+
+.draw-main{
+  flex:1;
+  display:grid;
+  grid-template-columns:minmax(300px,.7fr) minmax(430px,1.3fr);
+  align-items:center;
+  gap:30px;
+  width:min(1250px,100%);
+  margin:auto;
+  padding:25px 0;
+}
+
+.draw-student{
+  text-align:center;
+}
+
+.draw-student .eyebrow{
+  font-size:14px;
+  color:var(--muted);
+  letter-spacing:3px;
+  font-weight:900;
+}
+
+.draw-student-name{
+  margin:8px 0;
+  font-size:clamp(38px,6vw,72px);
+  line-height:1.1;
+}
+
+.draw-status{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:38px;
+  padding:0 16px;
+  border-radius:999px;
+  background:var(--green-light);
+  color:var(--green);
+  font-weight:900;
+}
+
+.draw-progress{
+  width:min(390px,100%);
+  margin:22px auto 0;
+}
+
+.draw-progress-dots{
+  display:flex;
+  gap:8px;
+}
+
+.draw-progress-dot{
+  flex:1;
+  height:12px;
+  border-radius:999px;
+  background:#dfe5e0;
+}
+
+.draw-progress-dot.active{
+  background:var(--green);
+}
+
+.draw-hint{
+  margin-top:9px;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.draw-action-btn{
+  width:min(390px,100%);
+  min-height:64px;
+  border:0;
+  border-radius:20px;
+  background:linear-gradient(135deg,#d84943,#ed645b);
+  color:white;
+  font-weight:900;
+  font-size:20px;
+  margin-top:25px;
+  box-shadow:0 10px 26px rgba(216,73,67,.20);
+}
+
+.card-area{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+.card-shell{
+  width:min(370px,70vw);
+  aspect-ratio:744/1063;
+  perspective:1400px;
+}
+
+.card-inner{
+  width:100%;
+  height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform .9s cubic-bezier(.18,.75,.25,1);
+}
+
+.card-shell.flipped .card-inner{
+  transform:rotateY(180deg);
+}
+
+.card-face{
+  position:absolute;
+  inset:0;
+  border-radius:26px;
+  overflow:hidden;
+  backface-visibility:hidden;
+  box-shadow:0 24px 60px rgba(35,55,46,.20);
+}
+
+.card-back{
+  background:
+    radial-gradient(circle at 20% 20%,rgba(255,255,255,.13),transparent 25%),
+    linear-gradient(145deg,#396b53,#254c3c);
+  border:9px solid #fff9e6;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  color:white;
+  text-align:center;
+}
+
+.big-tomato{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  background:#ec5750;
+  position:relative;
+  margin-bottom:25px;
+}
+
+.big-tomato:before{
+  content:"";
+  position:absolute;
+  width:55px;
+  height:30px;
+  background:#65a66c;
+  left:30px;
+  top:-12px;
+  border-radius:70% 20% 70% 20%;
+  transform:rotate(-10deg);
+}
+
+.card-back h3{
+  font-size:31px;
+  margin:0;
+}
+
+.card-back p{
+  margin:8px 0 0;
+  font-size:12px;
+  opacity:.75;
+  letter-spacing:3px;
+}
+
+.card-front{
+  transform:rotateY(180deg);
+  background:#fff;
+}
+
+.card-front img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+}
+
+.draw-result{
+  min-height:70px;
+  text-align:center;
+  margin-top:16px;
+}
+
+.draw-result strong{
+  display:block;
+  font-size:22px;
+}
+
+.draw-result span{
+  display:block;
+  color:var(--muted);
+  margin-top:5px;
+}
+
+.finish-btn{
+  min-height:48px;
+  padding:0 24px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  color:var(--green);
+  font-weight:900;
+  margin-top:8px;
+}
+
+@keyframes shuffle{
+  0%,100%{transform:translateX(0) rotate(0)}
+  15%{transform:translateX(-22px) rotate(-4deg)}
+  30%{transform:translateX(20px) rotate(4deg)}
+  45%{transform:translateX(-15px) rotate(-3deg)}
+  60%{transform:translateX(14px) rotate(3deg)}
+  75%{transform:translateX(-8px) rotate(-1deg)}
+}
+
+.card-shell.shuffling{
+  animation:shuffle .8s ease-in-out;
+}
+
+/* ==============================
+   編輯名單
+============================== */
+
+.modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(25,35,30,.5);
+  z-index:100;
+}
+
+.modal.open{
+  display:flex;
+}
+
+.modal-box{
+  width:min(600px,100%);
+  max-height:88vh;
+  overflow:hidden;
+  background:var(--paper);
+  border-radius:22px;
+  padding:20px;
+  box-shadow:0 25px 70px rgba(0,0,0,.2);
+}
+
+.name-editor-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:16px;
+}
+
+.name-editor-header h3{
+  margin:0;
+  font-size:21px;
+}
+
+.name-editor-header p{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+
+.name-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  max-height:52vh;
+  overflow-y:auto;
+  padding-right:5px;
+}
+
+.name-row{
+  display:grid;
+  grid-template-columns:45px 1fr 43px;
+  align-items:center;
+  gap:8px;
+}
+
+.seat-number{
+  font-weight:900;
+  color:var(--green);
+  text-align:center;
+}
+
+.name-row input{
+  width:100%;
+  height:44px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:0 12px;
+  background:#fff;
+  outline:none;
+}
+
+.name-row input:focus{
+  border-color:#7c9f8c;
+  box-shadow:0 0 0 3px rgba(53,104,79,.08);
+}
+
+.delete-student-btn{
+  width:42px;
+  height:42px;
+  border:1px solid #ead9d6;
+  border-radius:11px;
+  background:#fff8f7;
+}
+
+.delete-student-btn:hover{
+  background:#fdebea;
+}
+
+.add-student-btn{
+  width:100%;
+  min-height:47px;
+  margin-top:12px;
+  border:1px dashed #8da99a;
+  border-radius:13px;
+  background:var(--green-light);
+  color:var(--green);
+  font-weight:900;
+}
+
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:16px;
+}
+
+/* ==============================
+   RWD
+============================== */
+
+@media(max-width:1000px){
+
+  .teacher-grid,
+  .bottom-grid,
+  .draw-main{
+    grid-template-columns:1fr;
+  }
+
+  .student-buttons{
+    grid-template-columns:repeat(6,1fr);
+  }
+
+  .draw-main{
+    padding-top:40px;
+  }
+
+  .draw-student{
+    order:2;
+  }
+
+  .card-area{
+    order:1;
+  }
+}
+
+@media(max-width:600px){
+
+  .app{
+    padding:12px;
+  }
+
+  .header{
+    align-items:flex-start;
+  }
+
+  .brand p{
+    display:none;
+  }
+
+  .mode-switch{
+    flex-direction:column;
+  }
+
+  .student-buttons{
+    grid-template-columns:repeat(5,1fr);
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .stats .stat:last-child{
+    grid-column:1/-1;
+  }
+
+  .pool-grid{
+    grid-template-columns:1fr;
+  }
+
+  .draw-top .draw-brand h2{
+    display:none;
+  }
+
+  .card-shell{
+    width:min(290px,78vw);
+  }
+
+  .name-editor-header{
+    flex-direction:column;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{
+    animation:none !important;
+    transition:none !important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     教師模式
+===================================================== -->
+
+<div id="teacherMode" class="app">
+
+<header class="header">
+
+  <div class="brand">
+    <div class="tomato"></div>
+
+    <div>
+      <h1>番茄老師｜班級獎勵抽卡系統</h1>
+      <p>記錄參與、累積抽卡，讓每一次勇敢發言都被看見。</p>
+    </div>
+  </div>
+
+  <div class="mode-switch">
+
+    <button class="mode-btn active">
+      👨‍🏫 教師模式
+    </button>
+
+    <button id="openDrawMode" class="mode-btn">
+      🎴 抽卡模式
+    </button>
+
+  </div>
+
+</header>
+
+
+<div class="teacher-grid">
+
+<!-- 學生區 -->
+
+<section class="panel">
+
+  <div class="panel-title">
+
+    <div>
+      <h2>👥 學生參與紀錄</h2>
+      <p>黃色圓點代表目前已有抽卡資格。</p>
+    </div>
+
+    <span class="badge">5次＝1抽</span>
+
+  </div>
+
+  <div id="studentButtons" class="student-buttons"></div>
+
+
+  <div class="student-detail">
+
+    <div class="student-heading">
+
+      <strong id="teacherStudentName">
+        01號
+      </strong>
+
+      <button id="editNamesBtn" class="text-btn">
+        ✏️ 編輯名單
+      </button>
+
+    </div>
+
+
+    <div class="stats">
+
+      <div class="stat">
+        <small>今日有效參與</small>
+        <b>
+          <span id="teacherParticipation">0</span> / 10
+        </b>
+      </div>
+
+      <div class="stat">
+        <small>今日已抽卡</small>
+        <b>
+          <span id="teacherDraws">0</span> / 2
+        </b>
+      </div>
+
+      <div class="stat">
+        <small>可抽卡次數</small>
+        <b id="teacherAvailable">0</b>
+      </div>
+
+    </div>
+
+
+    <div class="progress-wrap">
+
+      <div class="progress-info">
+        <span>下一次抽卡進度</span>
+        <span id="teacherProgressText">0 / 5</span>
+      </div>
+
+      <div class="progress">
+        <div id="teacherProgressBar" class="progress-bar"></div>
+      </div>
+
+    </div>
+
+
+    <div class="participation-actions">
+
+      <button id="addParticipation" class="primary">
+        ＋ 回答／提問一次
+      </button>
+
+      <button id="removeParticipation" class="secondary">
+        −1
+      </button>
+
+    </div>
+
+
+    <button id="studentDrawBtn" class="go-draw" disabled>
+      尚未取得抽卡資格
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- 卡池 -->
+
+<section class="panel">
+
+  <div class="panel-title">
+
+    <div>
+      <h2>🗂️ 今日獎勵卡池</h2>
+      <p>卡池資訊只會顯示於教師模式。</p>
+    </div>
+
+    <span class="badge">
+      剩餘 <span id="poolRemaining">0</span> 張
+    </span>
+
+  </div>
+
+  <div id="poolGrid" class="pool-grid"></div>
+
+
+  <div class="pool-total">
+
+    <span>今日可抽卡總數</span>
+
+    <b>
+      <span id="poolTotal">0</span> 張
+    </b>
+
+  </div>
+
+</section>
+
+</div>
+
+
+<div class="bottom-grid">
+
+<section class="panel">
+
+  <div class="panel-title">
+
+    <div>
+      <h2>📋 今日抽卡紀錄</h2>
+      <p>依最新抽卡時間排序。</p>
+    </div>
+
+  </div>
+
+  <div id="history" class="history"></div>
+
+</section>
+
+
+<section class="panel">
+
+  <div class="panel-title">
+
+    <div>
+      <h2>⚙️ 教師工具</h2>
+      <p>每日資料會自動儲存在目前瀏覽器。</p>
+    </div>
+
+  </div>
+
+
+  <div class="teacher-tools">
+
+    <button id="defaultPoolBtn" class="tool-btn">
+      恢復建議卡池
+    </button>
+
+    <button id="resetDayBtn" class="tool-btn danger">
+      重設今日資料
+    </button>
+
+  </div>
+
+
+  <div style="
+    margin-top:16px;
+    line-height:1.9;
+    color:var(--muted);
+    font-size:13px;
+  ">
+    每累積5次有效回答或提問可抽1張；
+    每位學生每日最多抽2張。
+    抽卡模式不會顯示卡池內容與剩餘卡牌種類。
+  </div>
+
+</section>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     抽卡模式
+===================================================== -->
+
+<div id="drawMode" class="app draw-mode hidden">
+
+  <div class="draw-top">
+
+    <div class="draw-brand">
+
+      <div class="tomato"></div>
+
+      <h2>
+        番茄老師｜班級獎勵抽卡
+      </h2>
+
+    </div>
+
+    <button id="exitDrawMode" class="exit-draw">
+      ← 返回教師模式
+    </button>
+
+  </div>
+
+
+  <main class="draw-main">
+
+    <section class="draw-student">
+
+      <div class="eyebrow">
+        TODAY'S REWARD
+      </div>
+
+      <h1 id="drawStudentName" class="draw-student-name">
+        01號
+      </h1>
+
+      <div id="drawStatus" class="draw-status">
+        再累積5次即可抽卡
+      </div>
+
+
+      <div class="draw-progress">
+
+        <div id="drawProgressDots" class="draw-progress-dots"></div>
+
+        <div id="drawProgressText" class="draw-hint">
+          今日參與 0 / 10
+        </div>
+
+      </div>
+
+
+      <button id="drawButton" class="draw-action-btn" disabled>
+        尚未取得抽卡資格
+      </button>
+
+    </section>
+
+
+    <section class="card-area">
+
+      <div id="cardShell" class="card-shell">
+
+        <div class="card-inner">
+
+          <div class="card-face card-back">
+
+            <div class="big-tomato"></div>
+
+            <h3>班級獎勵卡</h3>
+
+            <p>
+              TOMATO CLASS REWARD
+            </p>
+
+          </div>
+
+
+          <div class="card-face card-front">
+
+            <img
+              id="drawnCardImage"
+              alt="抽中的班級獎勵卡"
+            >
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="draw-result">
+
+        <strong id="drawResultTitle">
+          準備好抽卡了嗎？
+        </strong>
+
+        <span id="drawResultSubtitle">
+          累積5次有效參與，就能獲得一次機會。
+        </span>
+
+      </div>
+
+
+      <button id="finishDrawBtn" class="finish-btn hidden">
+        ✓ 完成抽卡
+      </button>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+<!-- =====================================================
+     編輯學生名單
+===================================================== -->
+
+<div id="nameModal" class="modal">
+
+  <div class="modal-box">
+
+    <div class="name-editor-header">
+
+      <div>
+
+        <h3>
+          👥 編輯學生名單
+        </h3>
+
+        <p>
+          可依照班級實際人數新增或刪除學生，
+          座號會自動依序排列。
+        </p>
+
+      </div>
+
+      <span id="studentCountText" class="badge">
+        目前 29 人
+      </span>
+
+    </div>
+
+
+    <div id="nameList" class="name-list"></div>
+
+
+    <button
+      id="addStudentBtn"
+      type="button"
+      class="add-student-btn"
+    >
+      ＋ 新增一位學生
+    </button>
+
+
+    <div class="modal-actions">
+
+      <button id="cancelNames" class="tool-btn">
+        取消
+      </button>
+
+      <button
+        id="saveNames"
+        class="primary"
+        style="min-height:43px;padding:0 22px;"
+      >
+        ✓ 儲存名單
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   基本設定
+===================================================== */
+
+const STORAGE_KEY =
+  "tomato_class_reward_v3";
+
+
+/*
+  目前圖片真實檔名：
+  01.png.png ～ 10.png.png
+*/
+
+const CARD_DATA = [
+
+  {
+    id:1,
+    no:"NO.01",
+    name:"作業緩衝卡",
+    stars:2,
+    image:"./images/01.png.png",
+    defaultCount:2
+  },
+
+  {
+    id:2,
+    no:"NO.02",
+    name:"訂正緩衝卡",
+    stars:2,
+    image:"./images/02.png.png",
+    defaultCount:2
+  },
+
+  {
+    id:3,
+    no:"NO.03",
+    name:"卡片更換卡",
+    stars:2,
+    image:"./images/03.png.png",
+    defaultCount:1
+  },
+
+  {
+    id:4,
+    no:"NO.04",
+    name:"歌曲點播卡",
+    stars:2,
+    image:"./images/04.png.png",
+    defaultCount:1
+  },
+
+  {
+    id:5,
+    no:"NO.05",
+    name:"作業減量卡",
+    stars:3,
+    image:"./images/05.png.png",
+    defaultCount:1
+  },
+
+  {
+    id:6,
+    no:"NO.06",
+    name:"點心獎勵卡",
+    stars:3,
+    image:"./images/06.png.png",
+    defaultCount:1
+  },
+
+  {
+    id:7,
+    no:"NO.07",
+    name:"文具獎勵卡",
+    stars:3,
+    image:"./images/07.png.png",
+    defaultCount:1
+  },
+
+  {
+    id:8,
+    no:"NO.08",
+    name:"課堂金牌卡",
+    stars:4,
+    image:"./images/08.png.png",
+    defaultCount:1
+  },
+
+  {
+    id:9,
+    no:"NO.09",
+    name:"點數加倍卡",
+    stars:4,
+    image:"./images/09.png.png",
+    defaultCount:1
+  },
+
+  {
+    id:10,
+    no:"NO.10",
+    name:"休假金牌卡",
+    stars:5,
+    image:"./images/10.png.png",
+    defaultCount:1
+  }
+
+];
+
+
+/* =====================================================
+   ID
+===================================================== */
+
+function makeStudentId(){
+
+  if(
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ){
+    return crypto.randomUUID();
+  }
+
+  return (
+    Date.now().toString(36) +
+    Math.random().toString(36).slice(2)
+  );
+
+}
+
+
+/* =====================================================
+   日期
+===================================================== */
+
+function todayKey(){
+
+  const now = new Date();
+
+  return [
+    now.getFullYear(),
+    String(now.getMonth()+1).padStart(2,"0"),
+    String(now.getDate()).padStart(2,"0")
+  ].join("-");
+
+}
+
+
+/* =====================================================
+   建立學生
+===================================================== */
+
+function createStudent(){
+
+  return {
+    id:makeStudentId(),
+    name:"",
+    participation:0,
+    draws:0
+  };
+
+}
+
+
+function createStudents(count=29){
+
+  return Array.from(
+    {length:count},
+    ()=>createStudent()
+  );
+
+}
+
+
+/* =====================================================
+   卡池
+===================================================== */
+
+function createPool(){
+
+  const pool={};
+
+  CARD_DATA.forEach(card=>{
+    pool[card.id]=card.defaultCount;
+  });
+
+  return pool;
+
+}
+
+
+/* =====================================================
+   初始資料
+===================================================== */
+
+function createInitialState(studentCount=29){
+
+  return {
+    date:todayKey(),
+    selectedStudent:0,
+    students:createStudents(studentCount),
+    pool:createPool(),
+    history:[]
+  };
+
+}
+
+
+/* =====================================================
+   儲存 / 讀取
+===================================================== */
+
+function loadState(){
+
+  try{
+
+    const raw=
+      localStorage.getItem(STORAGE_KEY);
+
+    if(!raw){
+      return createInitialState();
+    }
+
+    const saved=
+      JSON.parse(raw);
+
+
+    if(
+      !Array.isArray(saved.students) ||
+      saved.students.length===0
+    ){
+      return createInitialState();
+    }
+
+
+    /*
+      新的一天：
+      保留班級名單與人數，
+      其餘資料重設。
+    */
+
+    if(saved.date !== todayKey()){
+
+      const fresh=
+        createInitialState(
+          saved.students.length
+        );
+
+      fresh.students=
+        saved.students.map(student=>({
+          id:student.id || makeStudentId(),
+          name:student.name || "",
+          participation:0,
+          draws:0
+        }));
+
+      return fresh;
+    }
+
+
+    /*
+      補齊舊資料可能缺少的欄位
+    */
+
+    saved.students=
+      saved.students.map(student=>({
+        id:student.id || makeStudentId(),
+        name:student.name || "",
+        participation:
+          Number(student.participation) || 0,
+        draws:
+          Number(student.draws) || 0
+      }));
+
+
+    if(!saved.pool){
+      saved.pool=createPool();
+    }
+
+    if(!Array.isArray(saved.history)){
+      saved.history=[];
+    }
+
+    if(
+      saved.selectedStudent<0 ||
+      saved.selectedStudent>=saved.students.length
+    ){
+      saved.selectedStudent=0;
+    }
+
+    return saved;
+
+  }
+
+  catch(error){
+
+    console.error(error);
+
+    return createInitialState();
+
+  }
+
+}
+
+
+let state=loadState();
+
+
+function saveState(){
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(state)
+  );
+
+}
+
+
+/* =====================================================
+   顯示名稱
+===================================================== */
+
+function getStudentDisplayName(student,index){
+
+  const seatNo=
+    String(index+1).padStart(2,"0");
+
+  const name=
+    (student.name || "").trim();
+
+  if(name){
+    return `${seatNo}號｜${name}`;
+  }
+
+  return `${seatNo}號`;
+
+}
+
+
+function getStudentHistoryName(student,index){
+
+  const seatNo=
+    String(index+1).padStart(2,"0");
+
+  const name=
+    (student.name || "").trim();
+
+  return name
+    ? `${seatNo}號 ${name}`
+    : `${seatNo}號`;
+
+}
+
+
+/* =====================================================
+   工具
+===================================================== */
+
+function currentStudent(){
+
+  return state.students[
+    state.selectedStudent
+  ];
+
+}
+
+
+function availableDraws(student){
+
+  const earned=
+    Math.floor(
+      student.participation/5
+    );
+
+  return Math.max(
+    0,
+    Math.min(2,earned)-student.draws
+  );
+
+}
+
+
+function totalPool(){
+
+  return Object.values(state.pool)
+    .reduce(
+      (sum,value)=>sum+Number(value || 0),
+      0
+    );
+
+}
+
+
+function nextProgress(student){
+
+  if(student.draws>=2){
+    return 5;
+  }
+
+  if(
+    student.participation>0 &&
+    student.participation%5===0 &&
+    availableDraws(student)>0
+  ){
+    return 5;
+  }
+
+  return student.participation%5;
+
+}
+
+
+function escapeHTML(value){
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+/* =====================================================
+   DOM
+===================================================== */
+
+const teacherMode=
+  document.getElementById("teacherMode");
+
+const drawMode=
+  document.getElementById("drawMode");
+
+const studentButtons=
+  document.getElementById("studentButtons");
+
+const teacherStudentName=
+  document.getElementById("teacherStudentName");
+
+const teacherParticipation=
+  document.getElementById("teacherParticipation");
+
+const teacherDraws=
+  document.getElementById("teacherDraws");
+
+const teacherAvailable=
+  document.getElementById("teacherAvailable");
+
+const teacherProgressText=
+  document.getElementById("teacherProgressText");
+
+const teacherProgressBar=
+  document.getElementById("teacherProgressBar");
+
+const studentDrawBtn=
+  document.getElementById("studentDrawBtn");
+
+const poolGrid=
+  document.getElementById("poolGrid");
+
+const poolRemaining=
+  document.getElementById("poolRemaining");
+
+const poolTotal=
+  document.getElementById("poolTotal");
+
+const history=
+  document.getElementById("history");
+
+
+/* 抽卡 */
+
+const drawStudentName=
+  document.getElementById("drawStudentName");
+
+const drawStatus=
+  document.getElementById("drawStatus");
+
+const drawProgressDots=
+  document.getElementById("drawProgressDots");
+
+const drawProgressText=
+  document.getElementById("drawProgressText");
+
+const drawButton=
+  document.getElementById("drawButton");
+
+const cardShell=
+  document.getElementById("cardShell");
+
+const drawnCardImage=
+  document.getElementById("drawnCardImage");
+
+const drawResultTitle=
+  document.getElementById("drawResultTitle");
+
+const drawResultSubtitle=
+  document.getElementById("drawResultSubtitle");
+
+const finishDrawBtn=
+  document.getElementById("finishDrawBtn");
+
+
+/* 名單 */
+
+const nameModal=
+  document.getElementById("nameModal");
+
+const nameList=
+  document.getElementById("nameList");
+
+const studentCountText=
+  document.getElementById("studentCountText");
+
+
+/* =====================================================
+   座號按鈕
+===================================================== */
+
+function renderStudentButtons(){
+
+  studentButtons.innerHTML="";
+
+  state.students.forEach(
+    (student,index)=>{
+
+      const button=
+        document.createElement("button");
+
+      button.className="student-btn";
+
+
+      if(index===state.selectedStudent){
+        button.classList.add("active");
+      }
+
+
+      if(availableDraws(student)>0){
+        button.classList.add("qualified");
+      }
+
+
+      button.textContent=
+        String(index+1).padStart(2,"0");
+
+
+      button.title=
+        getStudentDisplayName(
+          student,
+          index
+        );
+
+
+      button.addEventListener(
+        "click",
+        ()=>{
+
+          state.selectedStudent=index;
+
+          saveState();
+
+          resetDrawCard();
+
+          render();
+
+        }
+      );
+
+
+      studentButtons.appendChild(button);
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   教師模式學生資料
+===================================================== */
+
+function renderTeacherStudent(){
+
+  const student=
+    currentStudent();
+
+  if(!student){
+    return;
+  }
+
+  const progress=
+    nextProgress(student);
+
+
+  teacherStudentName.textContent=
+    getStudentDisplayName(
+      student,
+      state.selectedStudent
+    );
+
+
+  teacherParticipation.textContent=
+    student.participation;
+
+  teacherDraws.textContent=
+    student.draws;
+
+  teacherAvailable.textContent=
+    availableDraws(student);
+
+  teacherProgressText.textContent=
+    `${progress} / 5`;
+
+  teacherProgressBar.style.width=
+    `${progress/5*100}%`;
+
+
+  document
+    .getElementById("addParticipation")
+    .disabled=
+      student.participation>=10;
+
+
+  document
+    .getElementById("removeParticipation")
+    .disabled=
+      student.participation
+      <=
+      student.draws*5;
+
+
+  const canDraw=
+    availableDraws(student)>0 &&
+    totalPool()>0;
+
+
+  studentDrawBtn.disabled=
+    !canDraw;
+
+
+  if(student.draws>=2){
+
+    studentDrawBtn.textContent=
+      "今日已完成兩次抽卡";
+
+  }
+
+  else if(totalPool()<=0){
+
+    studentDrawBtn.textContent=
+      "今日卡池已抽完";
+
+  }
+
+  else if(availableDraws(student)>0){
+
+    studentDrawBtn.textContent=
+      "🎴 前往抽卡模式";
+
+  }
+
+  else{
+
+    const target=
+      student.participation<5
+      ? 5
+      : 10;
+
+    const remaining=
+      Math.max(
+        0,
+        target-student.participation
+      );
+
+    studentDrawBtn.textContent=
+      `再累積 ${remaining} 次即可抽卡`;
+
+  }
+
+}
+
+
+/* =====================================================
+   +1 / -1
+===================================================== */
+
+document
+.getElementById("addParticipation")
+.addEventListener(
+  "click",
+  ()=>{
+
+    const student=currentStudent();
+
+    if(!student){
+      return;
+    }
+
+    if(student.participation>=10){
+      return;
+    }
+
+    student.participation++;
+
+    saveState();
+    render();
+
+  }
+);
+
+
+document
+.getElementById("removeParticipation")
+.addEventListener(
+  "click",
+  ()=>{
+
+    const student=currentStudent();
+
+    if(!student){
+      return;
+    }
+
+    const minimum=
+      student.draws*5;
+
+    if(student.participation<=minimum){
+      return;
+    }
+
+    student.participation--;
+
+    saveState();
+    render();
+
+  }
+);
+
+
+/* =====================================================
+   卡池
+===================================================== */
+
+function renderPool(){
+
+  poolGrid.innerHTML="";
+
+
+  CARD_DATA.forEach(card=>{
+
+    const item=
+      document.createElement("div");
+
+    item.className="pool-card";
+
+
+    item.innerHTML=`
+
+      <div class="pool-card-top">
+
+        <span class="card-no">
+          ${card.no}
+        </span>
+
+        <span class="stars">
+          ${"★".repeat(card.stars)}
+        </span>
+
+      </div>
+
+      <strong>
+        ${card.name}
+      </strong>
+
+      <div class="stock-row">
+
+        <span>剩餘</span>
+
+        <div class="stock-control">
+
+          <button
+            data-id="${card.id}"
+            data-action="minus"
+            aria-label="減少${card.name}"
+          >
+            −
+          </button>
+
+          <b>
+            ${state.pool[card.id] ?? 0}
+          </b>
+
+          <button
+            data-id="${card.id}"
+            data-action="plus"
+            aria-label="增加${card.name}"
+          >
+            ＋
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    poolGrid.appendChild(item);
+
+  });
+
+
+  const total=totalPool();
+
+  poolRemaining.textContent=total;
+  poolTotal.textContent=total;
+
+}
+
+
+poolGrid.addEventListener(
+  "click",
+  event=>{
+
+    const button=
+      event.target.closest("button");
+
+    if(!button){
+      return;
+    }
+
+
+    const id=
+      Number(button.dataset.id);
+
+    const action=
+      button.dataset.action;
+
+
+    if(action==="plus"){
+
+      state.pool[id]=
+        Math.min(
+          99,
+          (state.pool[id] ?? 0)+1
+        );
+
+    }
+
+
+    if(action==="minus"){
+
+      state.pool[id]=
+        Math.max(
+          0,
+          (state.pool[id] ?? 0)-1
+        );
+
+    }
+
+
+    saveState();
+    render();
+
+  }
+);
+
+
+document
+.getElementById("defaultPoolBtn")
+.addEventListener(
+  "click",
+  ()=>{
+
+    state.pool=createPool();
+
+    saveState();
+    render();
+
+  }
+);
+
+
+/* =====================================================
+   抽卡紀錄
+===================================================== */
+
+function renderHistory(){
+
+  if(state.history.length===0){
+
+    history.innerHTML=`
+      <div class="empty">
+        今天還沒有抽卡紀錄 🍅
+      </div>
+    `;
+
+    return;
+  }
+
+
+  history.innerHTML=
+    state.history
+      .map(record=>`
+
+        <div class="history-item">
+
+          <div>
+
+            <strong>
+              ${escapeHTML(record.studentName)}
+              ｜${escapeHTML(record.cardName)}
+            </strong>
+
+            <span>
+              ${"★".repeat(record.stars)}
+            </span>
+
+          </div>
+
+          <span>
+            ${escapeHTML(record.time)}
+          </span>
+
+        </div>
+
+      `)
+      .join("");
+
+}
+
+
+/* =====================================================
+   切換抽卡模式
+===================================================== */
+
+function enterDrawMode(){
+
+  teacherMode.classList.add("hidden");
+
+  drawMode.classList.remove("hidden");
+
+  resetDrawCard();
+  renderDrawMode();
+
+  window.scrollTo(0,0);
+
+}
+
+
+function exitDrawMode(){
+
+  drawMode.classList.add("hidden");
+
+  teacherMode.classList.remove("hidden");
+
+  resetDrawCard();
+  render();
+
+  window.scrollTo(0,0);
+
+}
+
+
+document
+.getElementById("openDrawMode")
+.addEventListener(
+  "click",
+  enterDrawMode
+);
+
+
+studentDrawBtn.addEventListener(
+  "click",
+  ()=>{
+
+    if(!studentDrawBtn.disabled){
+      enterDrawMode();
+    }
+
+  }
+);
+
+
+document
+.getElementById("exitDrawMode")
+.addEventListener(
+  "click",
+  exitDrawMode
+);
+
+
+/* =====================================================
+   抽卡模式資料
+===================================================== */
+
+function renderDrawMode(){
+
+  const student=
+    currentStudent();
+
+  if(!student){
+    return;
+  }
+
+
+  const progress=
+    nextProgress(student);
+
+
+  drawStudentName.textContent=
+    getStudentDisplayName(
+      student,
+      state.selectedStudent
+    );
+
+
+  drawProgressText.textContent=
+    `今日有效參與 ${student.participation} / 10 ・ 已抽 ${student.draws} / 2`;
+
+
+  drawProgressDots.innerHTML="";
+
+
+  for(let i=1;i<=5;i++){
+
+    const dot=
+      document.createElement("div");
+
+    dot.className=
+      "draw-progress-dot";
+
+    if(i<=progress){
+      dot.classList.add("active");
+    }
+
+    drawProgressDots.appendChild(dot);
+
+  }
+
+
+  const available=
+    availableDraws(student);
+
+
+  if(student.draws>=2){
+
+    drawStatus.textContent=
+      "今天已完成兩次抽卡";
+
+    drawButton.textContent=
+      "今日抽卡已完成";
+
+    drawButton.disabled=true;
+
+  }
+
+  else if(totalPool()<=0){
+
+    drawStatus.textContent=
+      "今日卡池已抽完";
+
+    drawButton.textContent=
+      "請老師補充卡池";
+
+    drawButton.disabled=true;
+
+  }
+
+  else if(available>0){
+
+    drawStatus.textContent=
+      "✨ 已取得抽卡資格";
+
+    drawButton.textContent=
+      "🎴 抽一張獎勵卡";
+
+    drawButton.disabled=false;
+
+  }
+
+  else{
+
+    const target=
+      student.participation<5
+      ? 5
+      : 10;
+
+    const remaining=
+      Math.max(
+        0,
+        target-student.participation
+      );
+
+    drawStatus.textContent=
+      `再累積 ${remaining} 次即可抽卡`;
+
+    drawButton.textContent=
+      "尚未取得抽卡資格";
+
+    drawButton.disabled=true;
+
+  }
+
+}
+
+
+/* =====================================================
+   隨機抽卡
+===================================================== */
+
+function drawFromPool(){
+
+  const bag=[];
+
+
+  CARD_DATA.forEach(card=>{
+
+    const count=
+      Number(
+        state.pool[card.id] ?? 0
+      );
+
+
+    for(let i=0;i<count;i++){
+      bag.push(card.id);
+    }
+
+  });
+
+
+  if(bag.length===0){
+    return null;
+  }
+
+
+  const index=
+    Math.floor(
+      Math.random()*bag.length
+    );
+
+
+  const cardId=
+    bag[index];
+
+
+  return CARD_DATA.find(
+    card=>card.id===cardId
+  );
+
+}
+
+
+/* =====================================================
+   正式抽卡
+===================================================== */
+
+let drawing=false;
+
+
+drawButton.addEventListener(
+  "click",
+  ()=>{
+
+    if(drawing){
+      return;
+    }
+
+
+    const student=
+      currentStudent();
+
+    if(!student){
+      return;
+    }
+
+
+    if(
+      availableDraws(student)<=0 ||
+      student.draws>=2 ||
+      totalPool()<=0
+    ){
+      return;
+    }
+
+
+    const card=
+      drawFromPool();
+
+    if(!card){
+      return;
+    }
+
+
+    drawing=true;
+
+    drawButton.disabled=true;
+
+
+    cardShell.classList.remove(
+      "flipped"
+    );
+
+
+    finishDrawBtn.classList.add(
+      "hidden"
+    );
+
+
+    drawResultTitle.textContent=
+      `${getStudentDisplayName(
+        student,
+        state.selectedStudent
+      )} 正在抽卡……`;
+
+
+    drawResultSubtitle.textContent=
+      "看看今天的努力會抽到哪一張！";
+
+
+    cardShell.classList.add(
+      "shuffling"
+    );
+
+
+    setTimeout(()=>{
+
+      cardShell.classList.remove(
+        "shuffling"
+      );
+
+
+      drawnCardImage.src=
+        card.image;
+
+      drawnCardImage.alt=
+        card.name;
+
+
+      state.pool[card.id]--;
+
+
+      student.draws++;
+
+
+      state.history.unshift({
+
+        time:
+          new Date()
+          .toLocaleTimeString(
+            "zh-TW",
+            {
+              hour:"2-digit",
+              minute:"2-digit"
+            }
+          ),
+
+        studentId:
+          student.id,
+
+        studentName:
+          getStudentHistoryName(
+            student,
+            state.selectedStudent
+          ),
+
+        cardId:
+          card.id,
+
+        cardName:
+          card.name,
+
+        stars:
+          card.stars
+
+      });
+
+
+      saveState();
+
+
+      requestAnimationFrame(()=>{
+
+        cardShell.classList.add(
+          "flipped"
+        );
+
+      });
+
+
+      drawResultTitle.textContent=
+        `🎉 恭喜 ${
+          getStudentDisplayName(
+            student,
+            state.selectedStudent
+          )
+        }！`;
+
+
+      drawResultSubtitle.textContent=
+        `抽到 ${"★".repeat(card.stars)} ${card.name}`;
+
+
+      setTimeout(()=>{
+
+        finishDrawBtn.classList.remove(
+          "hidden"
+        );
+
+        drawing=false;
+
+      },900);
+
+
+    },1000);
+
+  }
+);
+
+
+/* =====================================================
+   完成抽卡
+===================================================== */
+
+finishDrawBtn.addEventListener(
+  "click",
+  ()=>{
+
+    resetDrawCard();
+    renderDrawMode();
+
+  }
+);
+
+
+function resetDrawCard(){
+
+  drawing=false;
+
+
+  cardShell.classList.remove(
+    "flipped",
+    "shuffling"
+  );
+
+
+  drawnCardImage.removeAttribute(
+    "src"
+  );
+
+
+  drawResultTitle.textContent=
+    "準備好抽卡了嗎？";
+
+
+  drawResultSubtitle.textContent=
+    "累積5次有效參與，就能獲得一次機會。";
+
+
+  finishDrawBtn.classList.add(
+    "hidden"
+  );
+
+}
+
+
+/* =====================================================
+   動態編輯學生名單
+===================================================== */
+
+let editingStudents=[];
+
+
+/* 開啟 */
+
+document
+.getElementById("editNamesBtn")
+.addEventListener(
+  "click",
+  ()=>{
+
+    editingStudents=
+      JSON.parse(
+        JSON.stringify(state.students)
+      );
+
+    renderNameEditor();
+
+    nameModal.classList.add("open");
+
+  }
+);
+
+
+/* 顯示名單 */
+
+function renderNameEditor(){
+
+  nameList.innerHTML="";
+
+
+  editingStudents.forEach(
+    (student,index)=>{
+
+      const row=
+        document.createElement("div");
+
+      row.className=
+        "name-row";
+
+
+      const seatNo=
+        String(index+1).padStart(2,"0");
+
+
+      row.innerHTML=`
+
+        <span class="seat-number">
+          ${seatNo}
+        </span>
+
+        <input
+          type="text"
+          maxlength="12"
+          placeholder="${seatNo}號學生姓名（可留白）"
+          value="${escapeHTML(student.name || "")}"
+          data-index="${index}"
+        >
+
+        <button
+          type="button"
+          class="delete-student-btn"
+          data-index="${index}"
+          title="刪除第${seatNo}號學生"
+        >
+          🗑️
+        </button>
+
+      `;
+
+
+      nameList.appendChild(row);
+
+    }
+  );
+
+
+  studentCountText.textContent=
+    `目前 ${editingStudents.length} 人`;
+
+}
+
+
+/* 把畫面輸入內容同步回暫存資料 */
+
+function syncEditingNames(){
+
+  const inputs=
+    nameList.querySelectorAll(
+      "input[data-index]"
+    );
+
+
+  inputs.forEach(input=>{
+
+    const index=
+      Number(input.dataset.index);
+
+
+    if(editingStudents[index]){
+
+      editingStudents[index].name=
+        input.value.trim();
+
+    }
+
+  });
+
+}
+
+
+/* 新增學生 */
+
+document
+.getElementById("addStudentBtn")
+.addEventListener(
+  "click",
+  ()=>{
+
+    syncEditingNames();
+
+
+    editingStudents.push(
+      createStudent()
+    );
+
+
+    renderNameEditor();
+
+
+    setTimeout(()=>{
+
+      nameList.scrollTop=
+        nameList.scrollHeight;
+
+
+      const inputs=
+        nameList.querySelectorAll(
+          "input"
+        );
+
+      const lastInput=
+        inputs[inputs.length-1];
+
+      if(lastInput){
+        lastInput.focus();
+      }
+
+    },0);
+
+  }
+);
+
+
+/* 刪除學生 */
+
+nameList.addEventListener(
+  "click",
+  event=>{
+
+    const button=
+      event.target.closest(
+        ".delete-student-btn"
+      );
+
+
+    if(!button){
+      return;
+    }
+
+
+    if(editingStudents.length<=1){
+
+      alert(
+        "班級名單至少需要保留一位學生。"
+      );
+
+      return;
+    }
+
+
+    syncEditingNames();
+
+
+    const index=
+      Number(button.dataset.index);
+
+    const student=
+      editingStudents[index];
+
+
+    if(!student){
+      return;
+    }
+
+
+    const displayName=
+      getStudentDisplayName(
+        student,
+        index
+      );
+
+
+    /*
+      有今日資料時特別警告
+    */
+
+    if(
+      student.participation>0 ||
+      student.draws>0
+    ){
+
+      const ok=
+        confirm(
+          `${displayName} 今天已有參與或抽卡紀錄。\n\n` +
+          `刪除後，這位學生今天尚未儲存於其他地方的參與資料會一併移除。\n\n` +
+          `確定要刪除嗎？`
+        );
+
+
+      if(!ok){
+        return;
+      }
+
+    }
+
+
+    editingStudents.splice(
+      index,
+      1
+    );
+
+
+    renderNameEditor();
+
+  }
+);
+
+
+/* 取消 */
+
+document
+.getElementById("cancelNames")
+.addEventListener(
+  "click",
+  ()=>{
+
+    editingStudents=[];
+
+    nameModal.classList.remove(
+      "open"
+    );
+
+  }
+);
+
+
+/* 儲存 */
+
+document
+.getElementById("saveNames")
+.addEventListener(
+  "click",
+  ()=>{
+
+    syncEditingNames();
+
+
+    state.students=
+      editingStudents.map(
+        student=>({
+          id:student.id || makeStudentId(),
+          name:student.name || "",
+          participation:
+            Number(student.participation) || 0,
+          draws:
+            Number(student.draws) || 0
+        })
+      );
+
+
+    /*
+      如果刪除後目前選取的座號
+      超出人數，自動選最後一位。
+    */
+
+    if(
+      state.selectedStudent >=
+      state.students.length
+    ){
+
+      state.selectedStudent=
+        state.students.length-1;
+
+    }
+
+
+    if(state.selectedStudent<0){
+      state.selectedStudent=0;
+    }
+
+
+    editingStudents=[];
+
+    nameModal.classList.remove(
+      "open"
+    );
+
+
+    saveState();
+
+    resetDrawCard();
+
+    render();
+
+  }
+);
+
+
+/* 點背景取消 */
+
+nameModal.addEventListener(
+  "click",
+  event=>{
+
+    if(event.target===nameModal){
+
+      editingStudents=[];
+
+      nameModal.classList.remove(
+        "open"
+      );
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   重設今日
+===================================================== */
+
+document
+.getElementById("resetDayBtn")
+.addEventListener(
+  "click",
+  ()=>{
+
+    const ok=
+      confirm(
+        "確定要重設今天的參與次數、抽卡紀錄與卡池嗎？\n\n學生名單與班級人數會保留。"
+      );
+
+
+    if(!ok){
+      return;
+    }
+
+
+    /*
+      保留名單、人數、ID
+    */
+
+    const savedStudents=
+      state.students.map(student=>({
+        id:student.id,
+        name:student.name
+      }));
+
+
+    state={
+      date:todayKey(),
+      selectedStudent:0,
+
+      students:
+        savedStudents.map(student=>({
+          id:student.id || makeStudentId(),
+          name:student.name || "",
+          participation:0,
+          draws:0
+        })),
+
+      pool:createPool(),
+
+      history:[]
+    };
+
+
+    saveState();
+
+    resetDrawCard();
+
+    render();
+
+  }
+);
+
+
+/* =====================================================
+   主畫面
+===================================================== */
+
+function render(){
+
+  renderStudentButtons();
+
+  renderTeacherStudent();
+
+  renderPool();
+
+  renderHistory();
+
+
+  if(
+    !drawMode.classList.contains(
+      "hidden"
+    )
+  ){
+    renderDrawMode();
+  }
+
+}
+
+
+/* =====================================================
+   初始化
+===================================================== */
+
+render();
+
+</script>
+
+</body>
+</html>
