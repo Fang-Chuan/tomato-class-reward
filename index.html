@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>番茄老師｜班級獎勵抽卡系統 2.0</title>
+<title>番茄老師｜班級獎勵抽卡系統 2.6.3（歷史還原保護版）</title>
 
 <style>
 :root{
@@ -2271,9 +2271,101 @@ function renderV2(){
     details.appendChild(summary);const ul=document.createElement("ul");
     (day.history||[]).forEach(h=>{const li=document.createElement("li");li.textContent=`${h.time||""} ${h.studentName||""}｜${h.cardName||""}`;ul.appendChild(li)});
     if(!ul.children.length){const li=document.createElement("li");li.textContent="沒有抽卡紀錄";ul.appendChild(li)}
-    details.appendChild(ul);container.appendChild(details);
+    details.appendChild(ul);
+    const studentTitle=document.createElement("p");studentTitle.className="v2-note";studentTitle.textContent="當日學生回答／抽卡明細";details.appendChild(studentTitle);
+    const table=document.createElement("table");table.style.cssText="width:100%;border-collapse:collapse;font-size:14px";
+    const head=document.createElement("thead");head.innerHTML="<tr><th>學生</th><th>回答次數</th><th>抽卡次數</th></tr>";table.appendChild(head);
+    const body=document.createElement("tbody");
+    (day.students||[]).forEach(st=>{const tr=document.createElement("tr");[st.name,String(st.participation||0),String(st.draws||0)].forEach(value=>{const td=document.createElement("td");td.textContent=value;td.style.cssText="padding:5px;border-bottom:1px solid #ddd;text-align:center";tr.appendChild(td)});body.appendChild(tr)});
+    table.appendChild(body);details.appendChild(table);
+    const restoreButton=document.createElement("button");
+    restoreButton.type="button";
+    restoreButton.className="tool-btn";
+    restoreButton.style.cssText="margin:14px 0;padding:11px 18px;background:#315d49;color:white;border-radius:12px;cursor:pointer";
+    restoreButton.textContent="↩ 將這一天的紀錄還原至操作畫面";
+    restoreButton.addEventListener("click",()=>restoreArchivedDay(day.date));
+    details.appendChild(restoreButton);
+    container.appendChild(details);
   });
 }
+
+/* 2.6.3 歷史日還原：先保護目前資料，再將選定日期的學生、抽卡、卡池載入今日操作畫面。
+   來源歷史封存維持原狀；不改動今天日期，避免立即觸發跨日清空。 */
+const RESTORE_SAFETY_KEY="tomato_reward_restore_safety_v263";
+function restoreArchivedDay(date){
+  if(drawing){alert("正在抽卡，請等待動畫結束再還原。");return;}
+  ensureCurrentDay();
+  const day=readArchives().find(a=>a.date===date);
+  if(!day){alert("找不到指定日期的歷史紀錄，請重新整理後再試。");return;}
+  if(!Array.isArray(day.students)||!day.students.length||!day.pool||!Array.isArray(day.history)){
+    alert("歷史資料不完整，已取消還原。");return;
+  }
+  const total=day.students.reduce((n,s)=>n+(Number(s.participation)||0),0);
+  const currentTotal=state.students.reduce((n,s)=>n+(Number(s.participation)||0),0);
+  const currentDraws=state.history.length;
+  const first=`準備將 ${date} 的 ${day.students.length} 位學生、${total} 次回答、${day.history.length} 筆抽卡紀錄及當天卡池庫存還原到「今天」的操作畫面。\n\n目前今天有 ${currentTotal} 次回答、${currentDraws} 筆抽卡紀錄；還原後將被取代。\n\n系統會先在此瀏覽器保存還原前的完整備份，原始歷史封存不變。\n\n要繼續嗎？`;
+  if(!confirm(first))return;
+  const second=`最後確認：將 ${date} 的紀錄作為今天的操作起點。\n這不是唯讀預覽，還原後可以繼續＋1、−1與抽卡；來源日期的歷史紀錄仍保留。\n\n確定還原嗎？`;
+  if(!confirm(second))return;
+  const snapshot={format:"tomato-reward-backup-v2",exportedAt:new Date().toISOString(),current:JSON.parse(JSON.stringify(state)),archives:readArchives(),restoreSafety:{sourceDate:date,createdAt:new Date().toISOString()}};
+  const oldState=state;
+  try{
+    // 儲存成功才准許修改目前狀態；每次還原前覆寫「上一次還原前備份」。
+    localStorage.setItem(RESTORE_SAFETY_KEY,JSON.stringify(snapshot));
+    const restored={
+      date:todayKey(),
+      students:JSON.parse(JSON.stringify(day.students)).map((st,i)=>({id:i+1,name:st.name,participation:st.participation,draws:st.draws})),
+      pool:JSON.parse(JSON.stringify(day.pool)),
+      history:JSON.parse(JSON.stringify(day.history)).map(h=>({...h,time:`[來源 ${date}] ${h.time||""}`})),
+      selectedStudent:0
+    };
+    // 優先寫入儲存區；失敗時不更動操作畫面。
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));
+    state=restored;
+    renderStudentSelect();resetCardDisplay();render();
+    alert(`還原完成！已將 ${date} 的 ${total} 次回答、${day.history.length} 筆抽卡與卡池狀態載入今天。\n來源歷史仍保留；還原前的資料已另存於本機保護備份。\n建議立即點選「下載還原前保護備份」另外保存 JSON。`);
+  }catch(e){
+    state=oldState;
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(oldState));}catch(_){}
+    alert(`還原失敗，已保留原操作資料：${e.message}`);
+  }
+}
+function downloadRestoreSafety(){
+  const raw=localStorage.getItem(RESTORE_SAFETY_KEY);
+  if(!raw){alert("尚無還原前保護備份。請先進行一次歷史還原。");return;}
+  const blob=new Blob([raw],{type:"application/json"});
+  const url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download=`tomato-reward-before-restore-${todayKey()}.json`;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function recoverRestoreSafety(){
+  const raw=localStorage.getItem(RESTORE_SAFETY_KEY);
+  if(!raw){alert("找不到還原前保護備份。");return;}
+  let backup;
+  try{backup=JSON.parse(raw);if(!backup.current||!Array.isArray(backup.archives))throw Error("備份格式不完整");}
+  catch(e){alert(`保護備份無法讀取：${e.message}`);return;}
+  if(backup.current.date!==todayKey()){
+    alert("這份保護備份不是今天建立的。為避免跨日覆蓋，請使用 JSON 備份進行人工檢查，已取消直接復原。");return;
+  }
+  if(!confirm("確定要復原到「上一次歷史還原之前」的狀態嗎？\n這會取代目前操作畫面的回答、抽卡與卡池資料。建議先匯出目前的完整備份。"))return;
+  try{
+    // 不以舊封存覆蓋新增歷史，保留目前歷史日期資料。
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(backup.current));
+    state=backup.current;renderStudentSelect();resetCardDisplay();render();
+    alert("已復原上一次歷史還原前的操作畫面。歷史封存未被覆蓋。");
+  }catch(e){alert(`復原失敗：${e.message}`)}
+}
+(function addRestoreSafetyControls(){
+  const container=document.getElementById("archiveList");
+  const bar=document.createElement("div");
+  bar.style.cssText="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px";
+  const download=document.createElement("button");download.type="button";download.className="tool-btn";
+  download.textContent="⬇ 下載還原前保護備份";download.addEventListener("click",downloadRestoreSafety);
+  const recover=document.createElement("button");recover.type="button";recover.className="tool-btn";
+  recover.textContent="↶ 復原上次還原前狀態";recover.addEventListener("click",recoverRestoreSafety);
+  bar.append(download,recover);
+  container.parentElement.insertBefore(bar,container);
+})();
 
 /* 2.1 全班方格快速登記：沿用原本 participation / draws 數值與資格計算 */
 const quickGrid=document.getElementById("quickGrid");
@@ -2414,13 +2506,38 @@ document.getElementById("backupFileInput").addEventListener("change",async event
     if(file.size>3_000_000)throw new Error("檔案超過 3MB");
     const data=JSON.parse(await file.text());
     if(data.format!=="tomato-reward-backup-v2"||!data.current||!Array.isArray(data.current.students)||!Array.isArray(data.archives))throw new Error("不是本系統的有效備份");
-    if(data.current.students.length<1||data.current.students.length>99||!data.current.pool||!Array.isArray(data.current.history))throw new Error("學生或卡池資料格式不正確");
-    if(!data.current.students.every((s,index)=>s.id===index+1&&typeof s.name==="string"&&Number.isInteger(s.participation)&&s.participation>=0&&s.participation<=10&&Number.isInteger(s.draws)&&s.draws>=0&&s.draws<=2&&s.draws*5<=s.participation))throw new Error("學生資料驗證失敗");
-    if(!CARD_DATA.every(c=>Number.isInteger(data.current.pool[c.id])&&data.current.pool[c.id]>=0&&data.current.pool[c.id]<=99))throw new Error("卡池資料驗證失敗");
-    if(!confirm("匯入將覆蓋目前的學生、卡池、抽卡與歷史紀錄。建議先匯出現有備份。確定繼續嗎？"))return;
-    localStorage.setItem(ARCHIVE_KEY,JSON.stringify(data.archives.slice(0,MAX_ARCHIVES)));
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(data.current));
-    state=loadState();renderStudentSelect();resetCardDisplay();render();alert("備份匯入完成。");
+    const validateDay=day=>{
+      if(!day||typeof day.date!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(day.date)||!Array.isArray(day.students)||day.students.length<1||day.students.length>99||!day.pool||!Array.isArray(day.history))throw new Error("日期或學生紀錄格式不正確");
+      if(!day.students.every((s,index)=>s.id===index+1&&typeof s.name==="string"&&Number.isInteger(s.participation)&&s.participation>=0&&s.participation<=10&&Number.isInteger(s.draws)&&s.draws>=0&&s.draws<=2&&s.draws*5<=s.participation))throw new Error("學生資料驗證失敗");
+      if(!CARD_DATA.every(c=>Number.isInteger(day.pool[c.id])&&day.pool[c.id]>=0&&day.pool[c.id]<=99))throw new Error("卡池資料驗證失敗");
+    };
+    validateDay(data.current);
+    data.archives.forEach(validateDay);
+    // 匯入前保護本機今日資料；匯入歷史日只增加封存，不改動今日。
+    const today=todayKey();
+    if(data.current.date>today)throw new Error("備份日期在未來，請確認裝置日期");
+    const importedDays=[...data.archives,data.current];
+    const existingDays=readArchives();
+    const localToday=state;
+    const archiveMap=new Map(existingDays.map(d=>[d.date,d]));
+    let added=0,skipped=0;
+    for(const day of importedDays){
+      if(day.date===today)continue;
+      if(archiveMap.has(day.date)){skipped++;continue;}
+      archiveMap.set(day.date,{date:day.date,students:day.students,history:day.history,pool:day.pool});added++;
+    }
+    const merged=[...archiveMap.values()].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,MAX_ARCHIVES);
+    const isTodayBackup=data.current.date===today;
+    const msg=isTodayBackup
+      ? `此備份包含今天的資料。為保護目前紀錄，系統只會合併不同日期的歷史封存，不會覆蓋今天的資料。\n新增 ${added} 天、略過同日期 ${skipped} 天。確定匯入嗎？`
+      : `此備份日期為 ${data.current.date}。將它加入歷史封存，不覆蓋今天的學生、回答、抽卡或卡池。\n新增 ${added} 天、略過同日期 ${skipped} 天。確定匯入嗎？`;
+    if(!confirm(msg))return;
+    // 先保存今天狀態，避免匯入失敗時造成資料被改寫。
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(localToday));
+    localStorage.setItem(ARCHIVE_KEY,JSON.stringify(merged));
+    state=localToday;
+    renderStudentSelect();resetCardDisplay();render();
+    alert(`歷史資料匯入完成！新增 ${added} 天，略過同日期 ${skipped} 天。今天的資料沒有被覆蓋。`);
   }catch(e){alert(`匯入失敗：${e.message}`)}
 });
 
