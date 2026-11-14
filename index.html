@@ -1277,10 +1277,9 @@ button:not(:disabled){touch-action:manipulation}.primary-btn,.draw-btn,.quick-pl
     </div>
     <div class="v2-note">本機儲存版 · 請定期備份 · 不具備教師身分驗證</div>
   </div>
-  <div class="v2-banner" id="storageNotice">🔒 目前是單機測試版，資料只儲存在這個瀏覽器；學生抽卡模式並非安全登入隔離。正式公開使用前，需另加教師登入與伺服器權限。</div>
+  <div class="v2-banner" id="storageNotice">ℹ️ 資料保存提醒：本系統資料儲存在目前使用的瀏覽器，請定期匯出備份；不同裝置不會自動同步。學生抽卡模式不具備獨立登入權限，請妥善管理教師操作設備與學生資料。</div>
   <section id="collectionSection" class="panel v2-hidden" aria-label="學生卡片蒐集冊初始建檔">
   <h2>📚 學生卡片蒐集冊</h2>
-  <p class="v2-banner">⚠️ 第二階段測試版：已加入卡牌圖片、全班總覽、抽卡自動增加及 CSV 匯出；兌換功能已加入第三階段測試。請在獨立測試環境操作，不要發布正式網站。</p>
   <div id="collectionDashboard" hidden>
  <div class="v2-toolbar" style="align-items:center">
   <label for="collectionStudent">學生：</label><select id="collectionStudent" class="student-select" style="width:min(250px,100%)"></select>
@@ -1303,7 +1302,6 @@ button:not(:disabled){touch-action:manipulation}.primary-btn,.draw-btn,.quick-pl
 
 <section id="redeemSection" class="panel v2-hidden" aria-label="獎勵兌換專區">
 <h2>🎁 獎勵兌換專區</h2>
-<p class="v2-banner">⚠️ 請使用測試資料操作，不要發布正式網站。兌換會立即扣除蒐集冊庫存；撤銷會補回卡片並保留紀錄。</p>
 <div id="redeemNotReady" class="v2-banner" hidden>尚未建立學生卡片蒐集冊，請先完成初始收藏建檔。</div>
 <div class="redeem-workspace"><div class="redeem-entry"><h3 class="glass-subtitle">① 選擇學生與卡片</h3><div class="redeem-layout">
  <div class="redeem-field"><label for="redeemStudent">學生</label><select id="redeemStudent" class="student-select"></select></div>
