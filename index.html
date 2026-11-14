@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>番茄老師｜班級獎勵抽卡系統 2.6.3（歷史還原保護版）</title>
+<title>番茄老師｜班級獎勵抽卡系統｜晨光科技玻璃測試版</title>
 
 <style>
 :root{
@@ -725,6 +725,7 @@ body[data-mode="admin"] .draw-panel{display:none}
 body[data-mode="admin"] .main-grid{grid-template-columns:1fr}
 body[data-mode="draw"] #adminOnly,body[data-mode="draw"] .lower-grid,body[data-mode="draw"] #editNamesBtn,body[data-mode="draw"] .actions,body[data-mode="draw"] #adminStats,body[data-mode="draw"] #adminRoster{display:none!important}
 body[data-mode="draw"] .main-grid{grid-template-columns:minmax(260px,.7fr) minmax(420px,1.3fr)}
+body[data-mode="collection"] #adminOnly,body[data-mode="collection"] .main-grid,body[data-mode="collection"] .lower-grid{display:none!important}
 body[data-mode="draw"] .student-card{margin-top:14px}
 .v2-banner{background:#fff7df;border:1px solid #ead6a4;border-radius:14px;padding:12px 15px;color:#755719;font-size:13px;line-height:1.65;margin-bottom:16px}
 .v2-search{border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:42px;width:min(300px,100%)}
@@ -772,6 +773,478 @@ body[data-mode="draw"] .student-card{margin-top:14px}
 @media(max-width:1150px){.quick-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:800px){.quick-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:520px){.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.quick-card{padding:10px}.quick-name{font-size:15px}}
+/* 2.6.4 抽卡資格快速篩選：僅抽卡模式顯示 */
+.draw-filter-bar{margin:0 0 12px;padding:12px;border:1px solid #d6e8d9;border-radius:14px;background:#f3faf4}
+.draw-filter-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;color:#28533d}
+.draw-filter-top span{font-weight:800;color:#257447}
+.draw-filter-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.draw-filter-switch button{min-height:44px;border:1px solid #bad5c4;border-radius:10px;background:#fff;color:#315d49;font-weight:800;font-size:15px;cursor:pointer}
+.draw-filter-switch button.active{background:#315d49;color:#fff;border-color:#315d49}
+.draw-filter-empty{margin:10px 0 0;font-size:14px;color:#6b5341;line-height:1.6}
+.collection-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:15px 0}.collection-tile{border:1px solid var(--line);border-radius:16px;background:white;padding:12px;text-align:center;min-width:0}.collection-tile img{width:100%;height:205px;object-fit:contain}.collection-tile strong{display:block;margin:7px 0}.collection-tile span{font-size:13px;color:var(--muted)}
+body[data-mode="collection"] #adminOnly,body[data-mode="collection"] .main-grid,body[data-mode="collection"] .lower-grid{display:none!important}
+@media(max-width:560px){.collection-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.collection-tile img{height:160px}}
+
+/* v2.6.5 第三階段兌換專區 */
+body[data-mode="redeem"] #adminOnly,body[data-mode="redeem"] .main-grid,body[data-mode="redeem"] .lower-grid,
+body[data-mode="collection"] #adminOnly,body[data-mode="collection"] .main-grid,body[data-mode="collection"] .lower-grid{display:none!important}
+.redeem-layout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}
+.redeem-field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.redeem-field label{font-weight:800}
+.redeem-field input{min-height:52px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:16px}
+.redeem-wide{grid-column:span 4}
+@media(max-width:900px){.redeem-layout{grid-template-columns:repeat(2,minmax(0,1fr))}.redeem-wide{grid-column:span 2}}
+@media(max-width:560px){.redeem-layout{grid-template-columns:1fr}.redeem-wide{grid-column:span 1}}
+
+/* =========== GLASS LAB — 視覺樣式覆寫，不更動功能腳本 =========== */
+:root{
+ --bg:#081425;--paper:rgba(17,35,58,.86);--ink:#edf6ff;--muted:#a8bdd4;
+ --green:#1d9dbe;--green2:#47b5d6;--red:#df748b;--yellow:#f6c779;
+ --blue:#64baf5;--line:rgba(162,204,241,.23);
+ --shadow:0 12px 32px rgba(0,6,19,.28);
+}
+html{color-scheme:dark}
+body{
+ color:#eaf5ff;
+ background:
+ radial-gradient(ellipse 600px 340px at 12% 1%,rgba(38,135,196,.24),transparent 75%),
+ radial-gradient(ellipse 500px 400px at 95% 12%,rgba(110,73,190,.20),transparent 78%),
+ radial-gradient(ellipse 400px 400px at 75% 92%,rgba(21,157,171,.12),transparent 75%),
+ linear-gradient(150deg,#071222,#0d2036 53%,#101a34);
+ background-attachment:fixed;
+}
+body::before{
+ content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.24;
+ background-image:linear-gradient(rgba(120,180,226,.11) 1px,transparent 1px),linear-gradient(90deg,rgba(120,180,226,.11) 1px,transparent 1px);
+ background-size:42px 42px;
+ mask-image:linear-gradient(to bottom,#000,transparent 88%);
+}
+.app{position:relative;z-index:1;width:min(1536px,100%);padding:clamp(12px,1.6vw,23px)}
+.header{
+ position:relative;min-height:91px;display:flex;align-items:center;
+ margin-bottom:11px;padding:16px 22px;gap:16px;
+ background:linear-gradient(115deg,rgba(28,59,89,.84),rgba(24,44,81,.66));
+ border:1px solid rgba(162,214,255,.24);border-radius:21px;
+ box-shadow:0 12px 35px #0003,inset 0 1px 0 #ffffff18;
+ backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+}
+.header:after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,#ffffff09,transparent 60%)}
+.brand{position:relative;z-index:1;gap:12px}
+.brand h1{color:#f3faff;font-size:clamp(19px,2vw,27px);line-height:1.25;letter-spacing:.02em}
+.brand p{color:#b2cce0;font-size:13px;margin-top:4px}
+.tomato-logo{width:46px;height:46px;flex-shrink:0;background:radial-gradient(circle at 34% 27%,#ff8d87,#e65363 74%);box-shadow:0 0 22px #ed6b7c45}
+.tomato-logo::before{left:13px;top:-4px}
+.date-box{z-index:1;background:rgba(13,31,54,.65);border:1px solid #8bb8e247;border-radius:13px;padding:9px 14px;color:#ecf6ff;box-shadow:none}
+.date-box small{color:#9ebdd7}
+.v2-top{display:flex;gap:10px;align-items:center;margin:0 0 11px}
+.mode-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;flex:1;min-width:0}
+.mode-btn{
+ position:relative;display:flex;align-items:center;justify-content:center;
+ padding:11px 7px;min-height:54px;min-width:0;
+ color:#c8e3f4;background:linear-gradient(145deg,rgba(33,67,101,.78),rgba(22,46,77,.74));
+ border:1px solid rgba(141,192,231,.28);border-radius:14px;
+ box-shadow:inset 0 1px 0 #ffffff1b,0 6px 15px #0002;
+ font-size:clamp(12px,1.08vw,15px);line-height:1.35;
+ transition:transform .15s,border-color .15s,background .15s;
+}
+.mode-btn:hover:not(.active){transform:translateY(-2px);border-color:#7fd7f0}
+.mode-btn.active{color:#fff;background:linear-gradient(125deg,#197fa8,#4e70b9);border-color:#85d5f2;box-shadow:0 0 0 1px #6bc5e83b,0 6px 18px #16a5db2c,inset 0 1px 0 #ffffff45}
+.mode-btn:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #f7d28d;outline-offset:2px}
+.v2-note{color:#a9c1d5;font-size:11px;max-width:240px}
+.v2-banner{background:rgba(77,75,44,.47);border:1px solid #d8bb7661;color:#f3deb5;border-radius:12px;padding:10px 13px;margin-bottom:12px}
+.v2-kpis{gap:10px;margin-bottom:12px}
+.v2-kpi{background:linear-gradient(140deg,rgba(29,60,91,.83),rgba(20,39,70,.87));border:1px solid #9ecbe83d;border-top:2px solid #60c8e6;border-radius:16px;box-shadow:0 7px 19px #0002,inset 0 1px 0 #ffffff13;padding:12px 16px}
+.v2-kpi:nth-child(2){border-top-color:#9c8df5}
+.v2-kpi:nth-child(3){border-top-color:#f1c979}
+.v2-kpi:nth-child(4){border-top-color:#65ddbb}
+.v2-kpi strong{color:#f4fbff;font-size:clamp(23px,2.4vw,32px)}
+.v2-kpi span,.v2-kpi small{color:#a8c1d7}
+.panel,.v2-section,.modal-box{
+ color:#e9f5ff;background:linear-gradient(140deg,rgba(24,48,76,.90),rgba(17,36,64,.92));
+ border:1px solid #9bc9ee38;border-radius:20px;
+ box-shadow:0 14px 32px #0003,inset 0 1px 0 #ffffff15;
+ backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.panel-title h2,.v2-section h2,.panel h2,.panel h3{color:#f0f8ff}
+.badge{background:#153d55;color:#b4edff;border:1px solid #4bafce70}
+.quick-grid{gap:10px}
+.quick-card{
+ color:#eaf5ff;background:linear-gradient(155deg,rgba(38,70,102,.94),rgba(26,50,81,.94));
+ border:1px solid rgba(153,201,239,.31);border-radius:15px;
+ box-shadow:0 5px 14px #0002,inset 0 1px 0 #ffffff16;padding:11px;
+}
+.quick-card.ready{border-color:#76d4c1;background:linear-gradient(155deg,#245f6c,#1d405f)}
+.quick-card.done{background:#26354b;border-color:#56667c;opacity:.79}
+.quick-card.chosen{outline:2px solid #f3ca7e;outline-offset:1px}
+.quick-name,.quick-no,.quick-count,.quick-status{color:#eaf5ff}
+.quick-progress,.progress{background:#112a43;border:1px solid #50718a70}
+.quick-progress>span,.progress-bar{background:linear-gradient(90deg,#36c6d7,#8a9ef2)}
+.quick-actions button{border-radius:10px;min-height:36px}
+.quick-actions .quick-plus,.primary-btn,.draw-btn{background:linear-gradient(125deg,#087da4,#3b9bc7);color:#fff;border:1px solid #8ad5ed80}
+.quick-actions .quick-minus{background:#994c69;color:#fff;border:1px solid #db809e75}
+.quick-remove{background:#502e44;border:1px solid #a66c84;color:#f5d2dc}
+.quick-tools,.v2-toolbar,.toolbar{color:#d9ebf8}
+.quick-switch button,.draw-filter-switch button,.secondary-btn,.tool-btn{
+ color:#d7ebf8;background:rgba(35,67,98,.85);border:1px solid #93c1e05e;border-radius:10px;
+}
+.quick-switch button.active,.draw-filter-switch button.active{background:#1c7ca6;color:#fff;border-color:#8edcf2}
+input,select,textarea,.student-select,.v2-search{
+ background:#132c47;color:#f1f9ff;border:1px solid #6c9cbb82;border-radius:9px;
+}
+input::placeholder{color:#8eaec5}
+option{background:#152d49;color:#edf7ff}
+.draw-filter-bar{background:#16344f;border:1px solid #568fb476;color:#d9f0ff}
+.draw-panel{border-top:3px solid #63d4ed}
+.draw-stage{background:radial-gradient(ellipse at 50% 8%,#244e75,#10263f 76%);border:1px solid #6ea9d05e;border-radius:19px}
+.card-shell{filter:drop-shadow(0 9px 18px #0006)}
+.card-back{background:linear-gradient(140deg,#204f77,#2a427c);border-color:#81d5f4}
+.draw-message{color:#e9f6ff}
+.pool-item,.student-card,.stat,.history-item,.collection-tile,.redeem-field{
+ background:rgba(32,62,94,.82);border:1px solid #91bee342;color:#eaf4ff;border-radius:13px;
+}
+.pool-item .num,.pool-item .count,.stat strong{color:#f1f9ff}
+.pool-item .stars{color:#f6d58c}
+.count-value,.pool-summary,.history,.empty,.v2-summary{color:#d1e5f4}
+.v2-table-wrap{border:1px solid #84b4d54b;border-radius:12px;overflow:auto}
+.v2-table{color:#e7f3ff}
+.v2-table th{background:#254666;color:#d9f1ff}
+.v2-table td{border-color:#779bbd3d}
+.v2-table tr:nth-child(even){background:#ffffff08}
+.v2-table tr.selected{background:#2860785e}
+.collection-tile:hover{border-color:#77d8ef}
+#collectionSection{border-top:3px solid #a9a1f4}
+#redeemSection{border-top:3px solid #ed9db9}
+.redeem-layout{color:#e7f4ff}
+.modal{background:#030d1bd9}
+@media(max-width:1080px){.v2-top{flex-wrap:wrap}.v2-note{max-width:none;width:100%;text-align:right}.mode-tabs{width:100%}}
+@media(max-width:700px){.header{padding:12px 14px;min-height:75px}.brand h1{font-size:18px}.date-box{padding:7px}.mode-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.mode-btn{min-height:46px}.v2-note{text-align:left}}
+@media(prefers-reduced-motion:reduce){.mode-btn{transition:none}.mode-btn:hover:not(.active){transform:none}}
+
+
+/* =========== 晨光科技玻璃風：淺色版覆寫 =========== */
+:root{--bg:#eef6ff;--paper:#fff;--ink:#23425b;--muted:#647d96;--line:#cbdff1;--shadow:0 8px 26px rgba(52,108,161,.11)}
+body{color:#23425b;background:radial-gradient(ellipse 60% 46% at 2% 0%,#d8eaff 0%,transparent 80%),radial-gradient(ellipse 58% 48% at 99% 3%,#e9e3ff 0%,transparent 77%),linear-gradient(150deg,#f6fbff,#eaf5ff 56%,#f9f7ff);background-attachment:fixed}
+body::before{opacity:.34;background-image:linear-gradient(#98c2e42a 1px,transparent 1px),linear-gradient(90deg,#98c2e42a 1px,transparent 1px)}
+.header{background:linear-gradient(115deg,#ffffffdb,#e9f3ffcc);border:1px solid #c6dcf1;box-shadow:0 10px 30px #719cbd20,inset 0 1px #fff}
+.header:after{opacity:.28}
+.brand h1{color:#244d70}.brand p,.v2-note{color:#68829a}
+.date-box{background:#ffffffcf;border:1px solid #d3e5f5;color:#284d6b}
+.mode-btn{background:#ffffffc9;color:#365d7e;border:1px solid #d1e3f5;box-shadow:0 3px 12px #7aa7cb12}
+.mode-btn:nth-child(1){background:#eaf7ff}.mode-btn:nth-child(2){background:#e9f9f7}.mode-btn:nth-child(3){background:#f2eeff}.mode-btn:nth-child(4){background:#fff1f5}
+.mode-btn:hover:not(.active){background:#fff;border-color:#7ab6e2}
+.mode-btn.active{background:linear-gradient(125deg,#258cc5,#647dcf);border-color:#5a9cd2;color:#fff;box-shadow:0 4px 14px #5599cb30}
+.v2-banner{background:#fff9e7;border:1px solid #e8d7a5;color:#6f5c36}
+.v2-kpi,.panel,.v2-section,.student-card,.stat,.history-item,.collection-tile,.redeem-field,.pool-item{
+ background:linear-gradient(135deg,#ffffffeb,#f5faffdf);color:#294a66;border:1px solid #ccdfef;
+ box-shadow:0 5px 18px #648db11a,inset 0 1px 0 #fff;border-radius:17px;
+ backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.v2-kpi strong,.pool-item .num,.pool-item .count,.stat strong{color:#285777}
+.panel-title h2,.v2-section h2,.panel h2,.panel h3{color:#244d6c}
+.badge{background:#e6f5ff;color:#28698e;border:1px solid #b8dff5}
+.quick-card{background:linear-gradient(135deg,#ffffffee,#f2f9ffeb);color:#284b65;border:1px solid #c9dfef;box-shadow:0 4px 13px #6288aa16}
+.quick-card.ready{background:#e7f8f3;border-color:#89cbb8}.quick-card.done{background:#f0f4f8;border-color:#c8d7e2;opacity:.85}
+.quick-name,.quick-no,.quick-count,.quick-status{color:#2b5574}
+.quick-progress,.progress{background:#dcebf6;border:1px solid #b9d7ea}.quick-progress>span,.progress-bar{background:linear-gradient(90deg,#42b8c9,#728fe2)}
+.quick-actions .quick-plus,.primary-btn,.draw-btn{background:linear-gradient(125deg,#188eb6,#4c98cc);color:#fff;border:1px solid #2d93bd}
+.quick-actions .quick-minus{background:#e58a85;color:#fff;border:1px solid #d87975}
+.quick-remove{background:#fff1f1;border:1px solid #edb4b4;color:#b84c56}
+.quick-tools,.v2-toolbar,.toolbar{color:#315a7a}
+.quick-switch button,.draw-filter-switch button,.secondary-btn,.tool-btn{background:#f2f8ff;color:#285778;border:1px solid #c5ddeb}
+.quick-switch button.active,.draw-filter-switch button.active{background:#258ac1;color:#fff;border-color:#258ac1}
+input,select,textarea,.student-select,.v2-search{background:#ffffffed;color:#234d6a;border:1px solid #bcd7e9;border-radius:10px}
+input::placeholder{color:#8299ab}option{background:#fff;color:#234d6a}
+.draw-filter-bar{background:#eaf5ff;border:1px solid #c8dfed;color:#315c78}
+.draw-panel{border-top:3px solid #76c8df}.draw-stage{background:radial-gradient(ellipse at 50% 7%,#fff,#e5f3ff 80%);border:1px solid #bddcf1}
+.card-shell{filter:drop-shadow(0 8px 18px #6b9db23a)}.card-back{background:linear-gradient(135deg,#a4dbef,#8faee9);border-color:#71b7db}
+.draw-message,.count-value,.pool-summary,.history,.empty,.v2-summary{color:#335b7a}
+.pool-item .stars{color:#d99725}
+.v2-table-wrap{border:1px solid #c6dced}.v2-table{color:#284e6a}.v2-table th{background:#e6f3fd;color:#2c5c7b}.v2-table td{border-color:#c9ddeb}.v2-table tr:nth-child(even){background:#eff7ff70}.v2-table tr.selected{background:#e0f5f2}
+.collection-tile:hover{border-color:#84b6dc}#collectionSection{border-top:3px solid #b7a0e9}#redeemSection{border-top:3px solid #eda6bd}.redeem-layout{color:#2e5874}
+/* 卡池數量控制：高對比、明確的加減符號，含 disabled 狀態 */
+.pool-item .count-control button{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;min-width:36px;border-radius:10px;font-size:22px;line-height:1;font-weight:900;text-shadow:none;box-shadow:0 2px 5px #638bab1c}
+.pool-item .count-control button:first-child{background:#fff0f0;color:#bd4857;border:1.5px solid #e6a2ac}
+.pool-item .count-control button:last-child{background:#e4f5ff;color:#086a9f;border:1.5px solid #80bddf}
+.pool-item .count-control button:disabled{opacity:.5;filter:saturate(.55)}
+.pool-item .count-control button:focus-visible{outline:3px solid #f3b75e;outline-offset:2px}
+.pool-item .count-control .count-value{font-size:16px;min-width:24px;color:#24526d}
+.modal{background:#173550a8}
+
+
+/* 2026 五區升級：純 CSS 玻璃元件，不使用貼圖，不更動資料或抽卡程式 */
+:root{--glass-border:#c4ddef;--glass-shadow:0 10px 30px rgba(71,121,166,.10)}
+.app{width:min(1540px,100%);padding:clamp(10px,1.5vw,20px)}
+.header{min-height:74px;padding:12px 18px;margin-bottom:8px;border-radius:19px;box-shadow:var(--glass-shadow)}
+.brand h1{font-size:clamp(19px,2vw,27px);line-height:1.25}.brand p{font-size:12px;margin-top:3px}
+.tomato-logo{width:43px;height:43px;flex-shrink:0}.date-box{padding:6px 11px;border-radius:12px}
+.v2-top{margin-bottom:8px;align-items:center;gap:8px}.mode-tabs{gap:7px}
+.mode-btn{min-height:46px;padding:8px 12px;border-radius:999px!important;background:rgba(255,255,255,.66)!important;color:#315d7c!important;border:1px solid #c2dceb!important;box-shadow:inset 0 1px #fff,0 3px 8px #85a9ca13;transition:box-shadow .18s,border-color .18s,background .18s}
+.mode-btn.active{background:linear-gradient(115deg,#e6f7ff,#e5eeff)!important;color:#14628b!important;border:1.5px solid #63aee0!important;box-shadow:0 0 0 3px #85c8f430,0 5px 15px #76b2df40,inset 0 1px #fff}
+.mode-btn:hover{border-color:#67afe1!important}.v2-note{font-size:11px}.v2-banner{padding:8px 12px;margin-bottom:10px;border-radius:12px}
+.v2-kpis{gap:9px;margin-bottom:10px}.v2-kpi{padding:10px 13px;border-radius:16px;box-shadow:var(--glass-shadow)}.v2-kpi strong{font-size:clamp(23px,2.2vw,30px)}
+.panel{border-radius:19px;box-shadow:var(--glass-shadow)}.v2-section{margin-bottom:12px}
+.quick-grid{gap:9px}.quick-card{position:relative;min-width:0;padding:10px;border-radius:15px;background:linear-gradient(145deg,#ffffffef,#f5fbffeb);border:1px solid #c9e0f1;box-shadow:0 4px 12px #4b8dc012;transition:border-color .16s,box-shadow .16s}
+.quick-card.ready{background:linear-gradient(145deg,#f2fff8,#e5f7ee);border:1.5px solid #73c3a1;box-shadow:0 0 0 2px #a2e5c735}
+.quick-card.ready:after{content:'✓ 可抽卡';position:absolute;top:7px;right:30px;font-size:10px;line-height:1.5;color:#176d51;background:#d8f5e7;border:1px solid #a2dec0;border-radius:999px;padding:1px 6px;font-weight:800;pointer-events:none}
+.quick-card.done{background:linear-gradient(145deg,#f0f6ff,#e6edf8);border-color:#b8d1eb;opacity:.90}
+.quick-card.done:after{content:'今日已抽滿';position:absolute;top:7px;right:30px;font-size:10px;color:#3c6697;background:#dceaff;border-radius:999px;padding:2px 6px;font-weight:700;pointer-events:none}
+.quick-actions button{min-height:34px;border-radius:10px}.quick-card .quick-count{font-variant-numeric:tabular-nums}
+.draw-stage{position:relative;isolation:isolate;overflow:hidden;min-height:315px;background:radial-gradient(ellipse at 50% 46%,#fff 0%,#effaff 43%,#e4f1ff 100%);border:1px solid #b9dcef;border-radius:22px}
+.draw-stage:before,.draw-stage:after{content:'';position:absolute;left:50%;top:50%;width:270px;height:270px;border:1px solid #8fc9ee80;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:-1;box-shadow:0 0 0 23px #a5d8f215,0 0 0 49px #b9e0f015}
+.draw-stage:after{width:208px;height:208px;border:1px dashed #85c6e97a;box-shadow:0 0 30px #a2ddff80}
+.card-shell{position:relative;z-index:1;filter:drop-shadow(0 11px 20px #72a7c85c)}
+.card-shell.flipped{animation:glassReveal .45s ease-out both}
+@keyframes glassReveal{0%{filter:drop-shadow(0 2px 6px #72a7c820)}60%{filter:drop-shadow(0 0 24px #88dfff9c)}100%{filter:drop-shadow(0 11px 20px #72a7c85c)}}
+#collectionSection{background:linear-gradient(135deg,#ffffffee,#f5f6ffea);border:1px solid #d3ccec;border-top:4px solid #b5a3e7}
+.collection-cards{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px}
+.collection-tile{position:relative;padding:11px;border:1px solid #d7d5ed;border-radius:16px;background:linear-gradient(145deg,#fff,#f6f4ff);box-shadow:0 7px 16px #847bc514;transition:transform .15s,box-shadow .15s}
+.collection-tile:hover{transform:translateY(-2px);box-shadow:0 10px 20px #847bc529}.collection-tile img{border-radius:9px;background:#fff;max-width:100%}
+#collectionDashboard .v2-toolbar{padding:10px;border:1px solid #e0dff2;border-radius:14px;background:#f8f7ff}
+#collectionSummary{background:#efecff;color:#5b528c;border-radius:999px;padding:5px 11px;display:inline-block}
+#redeemSection{background:linear-gradient(145deg,#fffefd,#fff6f9);border:1px solid #f0d5df;border-top:4px solid #e6aac1}
+#redeemSection .redeem-layout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:16px;border:1px solid #e5dce9;border-radius:17px;background:linear-gradient(130deg,#fff,#f5faff);box-shadow:var(--glass-shadow)}
+#redeemSection .redeem-field{min-width:0;border:1px solid #dbe6f0;border-radius:13px;padding:11px;background:#ffffffbd}
+#redeemSection .redeem-field input,#redeemSection .redeem-field select{width:100%;max-width:100%;box-sizing:border-box}
+#redeemSection .redeem-wide{grid-column:span 4}
+#redeemSection .v2-table-wrap{border-radius:15px;overflow:auto;border:1px solid #e4dbe8;background:#ffffffc9}
+#redeemSection h3{margin-top:20px;padding:10px 13px;border-radius:12px;background:#f7eff7;color:#69516e}
+#redeemSection .v2-toolbar{padding:10px 0}
+.pool-item .count-control button:first-child{color:#a83043!important;background:#ffeff2!important;border-color:#e6a2ac!important;font-weight:900!important}
+.pool-item .count-control button:last-child{color:#075d96!important;background:#e1f4ff!important;border-color:#83c1e6!important;font-weight:900!important}
+@media(max-width:950px){.v2-top{flex-wrap:wrap}.v2-note{max-width:none}.mode-tabs{width:100%}#redeemSection .redeem-layout{grid-template-columns:repeat(2,minmax(0,1fr))}#redeemSection .redeem-wide{grid-column:span 2}}
+@media(max-width:580px){.header{padding:10px 12px}.mode-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.mode-btn{font-size:12px;min-height:43px}.quick-card.ready:after,.quick-card.done:after{font-size:9px;right:25px}#redeemSection .redeem-layout{grid-template-columns:1fr;padding:10px}#redeemSection .redeem-wide{grid-column:span 1}.draw-stage{min-height:280px}}
+@media(prefers-reduced-motion:reduce){.card-shell.flipped{animation:none}.mode-btn,.quick-card,.collection-tile{transition:none}}
+
+
+/* ========== 晨光玻璃 七項升級：可操作元件，而非背景圖片 ========== */
+:root{--bg:#f3f8ff;--paper:#ffffff;--ink:#233e59;--muted:#587087;--line:#d7e4f0;--green:#257c76;--green2:#3f9c91;--blue:#3476c7;--red:#b94e5d;--shadow:0 8px 26px rgba(43,91,135,.09)}
+body{background:radial-gradient(ellipse 36% 35% at 2% 8%,#d7edffb5,transparent 100%),radial-gradient(ellipse 40% 42% at 97% 4%,#e8dfffb8,transparent 100%),linear-gradient(160deg,#f7fbff,#f0f6ff 57%,#f8faff);background-attachment:fixed;color:var(--ink)}
+.app{width:min(1560px,100%);padding:clamp(10px,1.5vw,19px)}
+.header{background:#ffffffa8;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid #ffffff;border-radius:21px;box-shadow:var(--shadow);padding:11px 18px;margin-bottom:9px;min-height:76px}
+.brand{gap:11px}.tomato-logo{width:43px;height:43px;flex-shrink:0}.tomato-logo::before{left:12px}
+.brand h1{font-size:clamp(18px,2vw,26px);line-height:1.3;color:#254d72}.brand p{font-size:12px;margin-top:3px}
+.date-box{padding:7px 12px;border-radius:13px;background:#f8fcff;border:1px solid #dce9f4;box-shadow:none;min-width:120px}
+.v2-top{margin-bottom:10px;align-items:center;gap:8px}
+.mode-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;flex:1;min-width:0;padding:5px;background:#ffffff9e;border:1px solid #e0eaf5;border-radius:19px;box-shadow:0 5px 16px #5485af14}
+.mode-btn{min-height:49px;border-radius:14px;padding:9px 7px;font-size:clamp(12px,1.1vw,15px);font-weight:750;color:#476682;background:#f4f8fd;border:1px solid transparent;box-shadow:none;transition:background .16s,border-color .16s,box-shadow .16s}
+.mode-btn:hover:not(.active){background:#e7f2ff;border-color:#bcd6ef}
+.mode-btn.active{color:#1b537f;background:linear-gradient(120deg,#d7f0ff,#e9e6ff);border:1px solid #a5c9ec;box-shadow:0 0 0 2px #ffffff,0 0 14px #a5d7ff95}
+.mode-btn:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #2b83c5;outline-offset:2px}
+.panel,.v2-kpi{background:#ffffffd9;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid #dce8f4;border-radius:18px;box-shadow:var(--shadow)}
+.panel{padding:clamp(12px,1.4vw,19px)}.v2-kpis{gap:9px;margin-bottom:10px}.v2-kpi{padding:11px 14px;border-top:3px solid #a3d4ec}.v2-kpi strong{font-size:clamp(23px,2.2vw,30px);color:#275b83}
+.v2-section h2,.panel-title h2{color:#285a80}
+.v2-note{color:#526d84}.v2-banner{background:#fffaf0;border:1px solid #ecd9ac;border-radius:12px;padding:10px 13px}
+button,.tool-btn,.primary-btn,.draw-btn,.quick-actions button{border-radius:12px;min-height:40px}
+button:not(:disabled){touch-action:manipulation}.primary-btn,.draw-btn,.quick-plus{background:#257c76!important;color:#fff!important}
+.quick-grid{grid-template-columns:repeat(auto-fill,minmax(166px,1fr));gap:9px}
+.quick-card{background:#fff;min-width:0;padding:10px;border-radius:15px;border:1px solid #d9e7f4;box-shadow:0 4px 12px #507da414}
+.quick-card.ready{border-color:#75bfb2;background:linear-gradient(135deg,#fff,#effbf7)}
+.quick-card.done{border-color:#b3cce5;background:#f1f6fd;opacity:1}
+.quick-card.chosen{outline:2px solid #7fb5df;outline-offset:1px}
+.quick-no{color:#3d7096}.quick-name{color:#243e57}.quick-count{color:#265b83}
+.quick-progress{background:#e9f0f7}.quick-progress>span{background:linear-gradient(90deg,#6bb8d6,#398aaf)}
+.quick-status{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:4px 8px;font-weight:750;font-size:12px;line-height:1.25;max-width:100%;margin:6px 0}
+.quick-status.status-ready{background:#d9f5e8;color:#126e51;border:1px solid #a9dfc8}
+.quick-status.status-done{background:#dceafd;color:#245a99;border:1px solid #b9d1f0}
+.quick-status.status-waiting{background:#f1f5f9;color:#54697a;border:1px solid #e1e8f0}
+.quick-actions{gap:6px}.quick-actions button{min-height:43px;font-size:15px}.quick-actions .quick-minus{background:#fff0f2!important;color:#ad4050!important;border:1px solid #e6b3bb}
+.quick-remove{color:#b54e5e;background:#fff3f5;border:1px solid #efd3d9}
+#addStudentMainBtn{background:#e9f7f4!important;border:1px solid #9bcfc4!important;color:#18695f!important;min-height:44px!important;padding:7px 15px!important;font-size:15px!important}
+.student-select,.v2-search,.redeem-field input{background:#fff;border:1px solid #c9dbe9;color:#24425b;min-height:45px;border-radius:12px}
+.draw-stage{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 42%,#fff 0%,#eaf6ff 47%,#e6eafd 100%);border:1px solid #cfe3f3;border-radius:20px}
+.draw-stage:before{content:"";position:absolute;width:min(360px,80%);aspect-ratio:1;left:50%;top:49%;transform:translate(-50%,-50%);border:2px solid #a5d8f780;border-radius:50%;box-shadow:0 0 0 20px #c9eaff25,0 0 0 42px #a9caff17,0 0 42px #a7d8f75e;pointer-events:none}
+.card-shell{position:relative;z-index:1;filter:drop-shadow(0 10px 16px #5388ad38)}
+.card-inner{transition-duration:.52s}.card-shell.flipped{animation:glassReveal .36s ease-out both}
+.collection-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:13px;align-items:stretch}
+.collection-tile{display:flex;flex-direction:column;gap:7px;background:linear-gradient(180deg,#fff,#f7faff);border:1px solid #d7e5f3;border-radius:16px;padding:11px;text-align:left;box-shadow:0 5px 15px #5680a215}
+.collection-tile img{display:block;width:100%;height:205px;object-fit:contain;background:#f6f9ff;border-radius:10px;padding:4px}
+.collection-tile strong{margin:2px 0;font-size:15px;color:#274b6c;line-height:1.35}
+.collection-meta{display:flex;flex-wrap:wrap;gap:5px;justify-content:space-between}
+.collection-meta .collection-tier,.collection-meta .collection-stock{font-size:12px;font-weight:750;padding:4px 7px;border-radius:999px}
+.collection-tier{background:#f2eefe;color:#654a95}.collection-stock{background:#e3f5f1;color:#1e7667}
+.collection-total{font-size:11px!important;color:#617a90!important}
+#redeemSection{background:#ffffffdf}
+.redeem-workspace{display:grid;grid-template-columns:minmax(290px,.86fr) minmax(390px,1.14fr);gap:13px;align-items:start}
+.redeem-entry,.redeem-ledger{background:#fff;border:1px solid #d8e6f2;border-radius:18px;padding:15px;box-shadow:0 4px 15px #4e80a410;min-width:0}
+.glass-subtitle{margin:0 0 14px;color:#2d648e;font-size:17px}
+.redeem-entry .redeem-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 12px}
+.redeem-entry .redeem-wide{grid-column:1/-1}.redeem-entry .v2-toolbar{display:flex;flex-wrap:wrap;gap:8px}.redeem-entry .v2-toolbar button{flex:1 1 180px;white-space:normal}
+.redeem-ledger .v2-table-wrap{max-height:500px;overflow:auto}.redeem-ledger .v2-table{min-width:650px}
+.v2-table th{background:#eaf4ff;color:#285777}.v2-table td{background:#fff}
+.count-control button{color:#125e85!important;background:#e5f5ff!important;border:1px solid #92c9e9!important;font-size:21px!important;font-weight:900!important;min-width:36px;min-height:36px}
+.count-control button[data-action="minus"]{color:#a93e53!important;background:#fff0f2!important;border-color:#e8b4be!important}
+.modal-box{background:#fff;border:1px solid #d8e6f2;border-radius:20px;box-shadow:0 16px 44px #264a7540}
+@media(min-width:800px) and (max-width:1180px){.app{padding:10px}.header{min-height:66px}.brand h1{font-size:21px}.brand p{font-size:11px}.quick-grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:7px}.quick-card{padding:8px}.mode-btn{min-height:46px}.redeem-workspace{grid-template-columns:minmax(260px,.9fr) minmax(350px,1.1fr)}}
+@media(max-width:850px){.redeem-workspace{grid-template-columns:1fr}.redeem-ledger .v2-table-wrap{max-height:none}.mode-tabs{gap:5px}}
+@media(max-width:620px){.header{padding:10px}.date-box{display:block}.mode-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.quick-card{padding:8px}.redeem-entry .redeem-layout{grid-template-columns:1fr}.brand h1{font-size:17px}.brand p{display:none}.date-box{min-width:auto;font-size:11px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.card-inner{transition:none!important}.card-shell.flipped .card-inner{transform:rotateY(180deg)}}
+
+
+/* 2026-11-14：兌換區均衡佈局及教師方格舒適度修正 */
+@media (min-width: 1021px){
+  #redeemSection .redeem-workspace{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+}
+#redeemSection .redeem-entry,#redeemSection .redeem-ledger{min-width:0;padding:clamp(12px,1.3vw,19px)}
+#redeemSection .redeem-entry .redeem-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:12px;margin:0 0 12px}
+#redeemSection .redeem-entry .redeem-wide{grid-column:1/-1}
+#redeemSection .redeem-field{min-width:0;padding:10px}
+#redeemSection .redeem-field label{display:block;line-height:1.45;margin-bottom:7px}
+#redeemSection .redeem-field input,#redeemSection .redeem-field select{display:block;min-width:0;width:100%;max-width:100%;box-sizing:border-box;font-size:15px}
+#redeemSection .redeem-entry .v2-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:stretch}
+#redeemSection .redeem-entry .v2-toolbar button{min-width:0;min-height:48px;flex:none;white-space:normal;overflow-wrap:anywhere;line-height:1.35;font-size:clamp(12px,1vw,15px);padding:10px 9px}
+#redeemSection #redeemSubmit{grid-column:1/-1;font-size:16px}
+#redeemSection .redeem-ledger .v2-table-wrap{max-width:100%;overflow-x:auto;overflow-y:auto;max-height:500px}
+#redeemSection .redeem-ledger .v2-table{min-width:690px;width:100%;table-layout:auto}
+#redeemSection .redeem-ledger .v2-table th,#redeemSection .redeem-ledger .v2-table td{padding:10px 9px;vertical-align:middle;line-height:1.45}
+#redeemSection .redeem-ledger .v2-table button{min-width:76px;min-height:40px;white-space:normal;color:#215b7b}
+/* 學生方格恢復適當留白；不再為多顯示一欄而過度壓縮 */
+#adminRoster .quick-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+#adminRoster .quick-card{padding:13px;border-radius:16px}
+#adminRoster .quick-actions button{min-height:44px}
+#adminRoster .quick-status{font-size:12px;line-height:1.4}
+@media (min-width:1021px) and (max-width:1400px){#adminRoster .quick-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:701px) and (max-width:1020px){
+  #adminRoster .quick-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #redeemSection .redeem-workspace{grid-template-columns:1fr}
+  #redeemSection .redeem-ledger .v2-table{min-width:690px}
+}
+@media (max-width:700px){
+  #adminRoster .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  #adminRoster .quick-card{padding:10px}
+  #redeemSection .redeem-workspace{grid-template-columns:1fr}
+  #redeemSection .redeem-entry .redeem-layout{grid-template-columns:repeat(2,minmax(0,1fr));padding:9px;gap:8px}
+  #redeemSection .redeem-field{padding:8px}
+}
+@media(max-width:420px){#redeemSection .redeem-entry .redeem-layout{grid-template-columns:1fr}}
+
+
+/* 兌換專區：恢復原本上下分區；保留晨光玻璃視覺，不改資料邏輯 */
+#redeemSection .redeem-workspace{
+  display:grid;grid-template-columns:minmax(0,1fr) !important;
+  gap:16px;align-items:stretch;
+}
+#redeemSection .redeem-entry,
+#redeemSection .redeem-ledger{width:100%;min-width:0;box-sizing:border-box}
+#redeemSection .redeem-entry .redeem-layout{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;
+}
+#redeemSection .redeem-entry .redeem-wide{grid-column:1/-1}
+#redeemSection .redeem-entry .v2-toolbar{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+}
+#redeemSection .redeem-entry .v2-toolbar button{
+  flex:0 1 auto;min-width:190px;min-height:46px;
+  white-space:normal;overflow-wrap:normal;line-height:1.35;
+  font-size:14px;padding:10px 16px;
+}
+#redeemSection .redeem-entry .v2-toolbar #redeemSubmit{min-width:240px}
+#redeemSection .redeem-ledger .v2-table-wrap{
+  width:100%;max-width:100%;overflow-x:auto;max-height:none;
+}
+#redeemSection .redeem-ledger .v2-table{
+  width:100%;min-width:790px;table-layout:auto;
+}
+#redeemSection .redeem-ledger .v2-table th,
+#redeemSection .redeem-ledger .v2-table td{
+  overflow-wrap:normal;word-break:normal;padding:12px 13px;
+}
+#redeemSection .redeem-ledger .v2-table th:nth-child(1),
+#redeemSection .redeem-ledger .v2-table td:nth-child(1),
+#redeemSection .redeem-ledger .v2-table th:nth-child(4),
+#redeemSection .redeem-ledger .v2-table td:nth-child(4),
+#redeemSection .redeem-ledger .v2-table th:nth-child(7),
+#redeemSection .redeem-ledger .v2-table td:nth-child(7){white-space:nowrap}
+#redeemSection .redeem-ledger .v2-table td:nth-child(5){min-width:170px}
+#redeemSection .redeem-ledger .v2-table button{min-width:92px;white-space:nowrap}
+@media(max-width:1000px){
+ #redeemSection .redeem-entry .redeem-layout{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+ #redeemSection .redeem-entry .redeem-layout{grid-template-columns:1fr}
+ #redeemSection .redeem-entry .v2-toolbar button,
+ #redeemSection .redeem-entry .v2-toolbar #redeemSubmit{flex:1 1 100%;min-width:0}
+}
+
+/* 按鈕可讀性修正：限定教師管理表格，避免淺色背景搭配白色字 */
+#quickTable td button,
+.v2-table td button:not(.plus){
+  color:#244e70 !important;
+  background:#f0f7ff !important;
+  border:1px solid #a9cce5 !important;
+  opacity:1;
+  -webkit-text-fill-color:currentColor;
+  font-weight:900;
+  white-space:nowrap;
+}
+#quickTable td button.plus,
+.v2-table td button.plus{
+  color:#fff !important;
+  background:#257c76 !important;
+  border-color:#257c76 !important;
+  -webkit-text-fill-color:#fff;
+}
+#quickTable td button:disabled,
+.v2-table td button:disabled{
+  color:#6d7e8e !important;
+  background:#edf1f5 !important;
+  border-color:#d4e0e9 !important;
+  -webkit-text-fill-color:#6d7e8e;
+  opacity:.8;
+}
+/* 快速登記方格的減分鍵與選取鍵，同步確保高對比 */
+#adminRoster .quick-actions .quick-minus{color:#a33a4c !important;background:#fff0f2 !important;border-color:#e6b3bb !important;-webkit-text-fill-color:#a33a4c}
+#adminRoster .quick-actions .quick-plus{color:#fff !important;background:#257c76 !important;border-color:#257c76 !important;-webkit-text-fill-color:#fff}
+#adminRoster .quick-choose{color:#245f83 !important;-webkit-text-fill-color:#245f83}
+#adminRoster .quick-actions button:disabled{color:#6d7e8e !important;background:#edf1f5 !important;border-color:#d4e0e9 !important;-webkit-text-fill-color:#6d7e8e;opacity:.75}
+
+
+/* 教師控制台 −1：紅色背景、白色字；停用狀態維持灰色 */
+#quickTable td button:not(.plus):not(:disabled):first-child,
+#adminRoster .quick-actions .quick-minus:not(:disabled){
+  background:#c94d5b !important;
+  color:#ffffff !important;
+  border-color:#b43f4e !important;
+  -webkit-text-fill-color:#ffffff !important;
+}
+#quickTable td button:not(.plus):not(:disabled):first-child:hover,
+#adminRoster .quick-actions .quick-minus:not(:disabled):hover{
+  background:#b83c4b !important;
+}
+#quickTable td button:disabled,
+#adminRoster .quick-actions .quick-minus:disabled{
+  background:#edf1f5 !important;
+  color:#6d7e8e !important;
+  border-color:#d4e0e9 !important;
+  -webkit-text-fill-color:#6d7e8e !important;
+}
+
+
+/* 學生參與區精簡版：保留原有 JS 所依賴的所有元素 */
+.student-card{padding:16px 18px!important;margin-top:10px!important}
+.student-card .student-name{margin-bottom:8px}
+.student-card .stats{margin-top:8px!important;gap:10px}
+.student-card .stat{padding:10px 14px!important;border-radius:13px}
+.student-card .stat small{font-size:13px;line-height:1.45}
+.student-card .stat b{font-size:24px!important;margin-top:1px!important;line-height:1.3}
+.student-card .progress-label{margin-top:11px!important;font-size:13px;align-items:center}
+.student-card .progress-label span:last-child{font-weight:800;color:#286c87}
+.student-card .progress{margin-top:5px!important;height:11px!important}
+/* 五格點與長條重複，僅隱藏顯示；原有 DOM 與計算邏輯保留 */
+.student-card #dots{display:none!important}
+.student-card .actions{margin-top:13px!important;gap:10px}
+.student-card #addParticipation{min-height:58px!important;font-size:18px!important}
+.student-card #removeParticipation{min-width:66px!important;min-height:58px!important;
+ background:#c44b59!important;color:#fff!important;border:1px solid #ad3849!important;
+ border-radius:14px!important;font-size:19px!important;font-weight:900!important}
+.student-card #removeParticipation:disabled{background:#e8edf1!important;color:#8494a2!important;border-color:#d5e0e9!important;opacity:1!important}
+@media(max-width:680px){
+ .student-card{padding:12px!important}
+ .student-card .stat{padding:9px!important}
+ .student-card #addParticipation{font-size:15px!important}
+ .student-card #removeParticipation{min-width:56px!important}
+}
+@media(prefers-reduced-motion:reduce){.student-card .progress-bar{transition:none!important}}
+
 </style>
 </head>
 
@@ -783,7 +1256,7 @@ body[data-mode="draw"] .student-card{margin-top:14px}
     <div class="brand">
       <div class="tomato-logo"></div>
       <div>
-        <h1>番茄老師｜班級獎勵抽卡系統 2.0</h1>
+        <h1>番茄老師｜班級獎勵抽卡系統</h1>
         <p>每一次勇敢回答與提問，都讓學習多一種可能。</p>
       </div>
     </div>
@@ -797,13 +1270,55 @@ body[data-mode="draw"] .student-card{margin-top:14px}
 
   <div class="v2-top">
     <div class="mode-tabs" role="group" aria-label="切換操作模式">
-      <button id="adminModeBtn" class="mode-btn active" type="button" aria-pressed="true">📋 教師管理模式</button>
-      <button id="drawModeBtn" class="mode-btn" type="button" aria-pressed="false">🎴 學生抽卡模式</button>
+      <button id="adminModeBtn" class="mode-btn active" type="button" aria-pressed="true">◈ 教師控制台</button>
+      <button id="drawModeBtn" class="mode-btn" type="button" aria-pressed="false">✦ 幸運抽卡艙</button>
+       <button id="collectionModeBtn" class="mode-btn" type="button" aria-pressed="false">▣ 卡牌資料庫</button>
+      <button id="redeemModeBtn" class="mode-btn" type="button" aria-pressed="false">◇ 獎勵兌換站</button>
     </div>
     <div class="v2-note">本機儲存版 · 請定期備份 · 不具備教師身分驗證</div>
   </div>
   <div class="v2-banner" id="storageNotice">🔒 目前是單機測試版，資料只儲存在這個瀏覽器；學生抽卡模式並非安全登入隔離。正式公開使用前，需另加教師登入與伺服器權限。</div>
-  <div id="adminOnly">
+  <section id="collectionSection" class="panel v2-hidden" aria-label="學生卡片蒐集冊初始建檔">
+  <h2>📚 學生卡片蒐集冊</h2>
+  <p class="v2-banner">⚠️ 第二階段測試版：已加入卡牌圖片、全班總覽、抽卡自動增加及 CSV 匯出；兌換功能已加入第三階段測試。請在獨立測試環境操作，不要發布正式網站。</p>
+  <div id="collectionDashboard" hidden>
+ <div class="v2-toolbar" style="align-items:center">
+  <label for="collectionStudent">學生：</label><select id="collectionStudent" class="student-select" style="width:min(250px,100%)"></select>
+  <label for="collectionView">呈現：</label><select id="collectionView" class="student-select" style="width:150px"><option value="image">卡牌圖片</option><option value="text">純文字</option></select>
+  <button class="tool-btn" id="collectionAllBtn" type="button">👥 全班總覽</button>
+  <button class="tool-btn" id="collectionExportStudent" type="button">⬇ 個人 CSV</button>
+  <button class="tool-btn" id="collectionExportAll" type="button">⬇ 全班 CSV</button>
+  <button class="tool-btn" id="collectionBackup" type="button">⬇ 收藏完整備份 JSON</button>
+  <button class="tool-btn" id="collectionImport" type="button">⬆ 匯入收藏備份 JSON</button><input id="collectionImportFile" type="file" accept=".json,application/json" hidden>
+ </div>
+ <p id="collectionSummary" class="v2-note" aria-live="polite"></p>
+ <div id="collectionCardGrid" class="collection-cards"></div>
+ <div id="collectionAllWrap" hidden><h3>全班持有卡片總覽</h3><div class="v2-table-wrap"><table class="v2-table"><thead><tr><th>座號</th><th>姓名</th><th>持有種類</th><th>持有總張數</th></tr></thead><tbody id="collectionAllRows"></tbody></table></div></div>
+</div>
+<div id="collectionSetup"><div class="v2-toolbar"><button id="collectionScanBtn" class="tool-btn" type="button">🔎 重新掃描歷史紀錄</button><button id="collectionProtectBtn" class="tool-btn" type="button">⬇ 下載建檔前完整保護備份</button><button id="collectionCommitBtn" class="primary-btn" type="button">確認並建立初始收藏</button></div>
+  <p id="collectionStatus" class="v2-note" aria-live="polite">請先掃描歷史紀錄。</p>
+  <div class="v2-table-wrap"><table class="v2-table"><thead><tr><th>學生</th><th>卡牌</th><th>歷史取得</th><th>過去已使用</th><th>預計持有</th></tr></thead><tbody id="collectionRows"></tbody></table></div>
+  <p class="v2-note">「過去已使用」請依實際情況填寫；若有舊版重複抽卡紀錄，請先核對來源再確認。重新掃描不會覆蓋已建立的收藏。</p></div>
+</section>
+
+<section id="redeemSection" class="panel v2-hidden" aria-label="獎勵兌換專區">
+<h2>🎁 獎勵兌換專區</h2>
+<p class="v2-banner">⚠️ 請使用測試資料操作，不要發布正式網站。兌換會立即扣除蒐集冊庫存；撤銷會補回卡片並保留紀錄。</p>
+<div id="redeemNotReady" class="v2-banner" hidden>尚未建立學生卡片蒐集冊，請先完成初始收藏建檔。</div>
+<div class="redeem-workspace"><div class="redeem-entry"><h3 class="glass-subtitle">① 選擇學生與卡片</h3><div class="redeem-layout">
+ <div class="redeem-field"><label for="redeemStudent">學生</label><select id="redeemStudent" class="student-select"></select></div>
+ <div class="redeem-field"><label for="redeemCard">持有卡牌</label><select id="redeemCard" class="student-select"></select></div>
+ <div class="redeem-field"><label for="redeemQty">兌換張數</label><input id="redeemQty" type="number" inputmode="numeric" min="1" step="1" value="1"></div>
+ <div class="redeem-field"><label for="redeemDate">兌換日期</label><input id="redeemDate" type="date"></div>
+ <div class="redeem-field redeem-wide"><label for="redeemDetail">兌換內容／使用項目</label><input id="redeemDetail" type="text" maxlength="200" placeholder="例如：數學作業延後一天繳交"></div>
+</div>
+<p id="redeemBalance" class="v2-note" aria-live="polite"></p>
+<div class="v2-toolbar"><button id="redeemSubmit" type="button" class="primary-btn">確認兌換並扣除卡片</button><button id="redeemCSV" type="button" class="tool-btn">⬇ 兌換紀錄 CSV</button><button id="redeemBackup" type="button" class="tool-btn">⬇ 兌換前完整 JSON 備份</button></div>
+</div><div class="redeem-ledger"><h3 class="glass-subtitle">② 兌換歷史（撤銷仍保留）</h3>
+<div class="v2-table-wrap"><table class="v2-table"><thead><tr><th>兌換日期</th><th>學生</th><th>卡牌</th><th>張數</th><th>兌換內容</th><th>狀態</th><th>操作</th></tr></thead><tbody id="redeemHistory"></tbody></table></div></div></div>
+</section>
+
+<div id="adminOnly">
     <section id="adminStats" class="v2-kpis" aria-label="今日班級概況">
       <div class="v2-kpi"><small>班級學生</small><strong id="kpiStudents">29</strong><span> 人</span></div>
       <div class="v2-kpi"><small>今日參與</small><strong id="kpiParticipation">0</strong><span> 次</span></div>
@@ -842,6 +1357,14 @@ body[data-mode="draw"] .student-card{margin-top:14px}
         <span class="badge">5次＝1抽</span>
       </div>
 
+      <div id="drawFilterBar" class="draw-filter-bar" hidden>
+        <div class="draw-filter-top"><strong>🎴 快速選擇抽卡學生</strong><span id="drawEligibleCount" aria-live="polite">0 位可抽卡</span></div>
+        <div class="draw-filter-switch" role="group" aria-label="學生篩選">
+          <button type="button" id="showEligibleBtn" class="active" aria-pressed="true">可抽卡學生</button>
+          <button type="button" id="showAllDrawBtn" aria-pressed="false">全部學生</button>
+        </div>
+        <p id="drawFilterEmpty" class="draw-filter-empty" hidden>目前沒有符合抽卡資格的學生，請回教師管理模式登記回答次數。</p>
+      </div>
       <select id="studentSelect" class="student-select"></select>
 
       <div class="student-card">
@@ -1358,31 +1881,70 @@ document.getElementById("today").textContent=
 
 /* ---------- 學生選單 ---------- */
 
-function renderStudentSelect(){
-
-  studentSelect.innerHTML="";
-
-  state.students.forEach((student,index)=>{
-
-    const option=document.createElement("option");
-
-    option.value=index;
-
-    option.textContent=
-      `${String(index+1).padStart(2,"0")}｜${student.name}`;
-
-    studentSelect.appendChild(option);
-
-  });
-
-  studentSelect.value=
-    state.selectedStudent ?? 0;
-
+/* 2.6.4 篩選僅影響顯示，不寫入備份或更改抽卡資格規則。 */
+let drawStudentFilter="eligible";
+const drawFilterBar=document.getElementById("drawFilterBar");
+const drawEligibleCount=document.getElementById("drawEligibleCount");
+const drawFilterEmpty=document.getElementById("drawFilterEmpty");
+const showEligibleBtn=document.getElementById("showEligibleBtn");
+const showAllDrawBtn=document.getElementById("showAllDrawBtn");
+function updateDrawFilterControls(){
+  const isDraw=document.body.dataset.mode==="draw";
+  drawFilterBar.hidden=!isDraw;
+  const count=state.students.filter(s=>availableDraws(s)>0).length;
+  drawEligibleCount.textContent=`${count} 位可抽卡`;
+  showEligibleBtn.classList.toggle("active",drawStudentFilter==="eligible");
+  showAllDrawBtn.classList.toggle("active",drawStudentFilter==="all");
+  showEligibleBtn.setAttribute("aria-pressed",String(drawStudentFilter==="eligible"));
+  showAllDrawBtn.setAttribute("aria-pressed",String(drawStudentFilter==="all"));
+  drawFilterEmpty.hidden=!(isDraw&&drawStudentFilter==="eligible"&&count===0);
 }
+function renderStudentSelect(){
+  updateDrawFilterControls();
+  const filterActive=document.body.dataset.mode==="draw"&&drawStudentFilter==="eligible";
+  const indices=state.students.map((_,i)=>i).filter(i=>!filterActive||availableDraws(state.students[i])>0);
+  // 抽卡動畫期間維持原選取對象；動畫結束後才切換下一位可抽卡學生。
+  if(filterActive&&!drawing&&indices.length&&!indices.includes(state.selectedStudent)){
+    state.selectedStudent=indices[0];
+    resetCardDisplay();
+    saveState();
+  }
+  studentSelect.replaceChildren();
+  if(!indices.length){
+    const option=document.createElement("option");option.value="";
+    option.textContent="目前沒有可抽卡學生";studentSelect.appendChild(option);
+    studentSelect.disabled=true;
+    return;
+  }
+  studentSelect.disabled=false;
+  indices.forEach(index=>{
+    const student=state.students[index];
+    const option=document.createElement("option");
+    option.value=String(index);
+    option.textContent=`${String(index+1).padStart(2,"0")}｜${student.name}${filterActive?`（可抽 ${availableDraws(student)} 張）`:""}`;
+    studentSelect.appendChild(option);
+  });
+  studentSelect.value=String(state.selectedStudent);
+  // 抽卡動畫期間保留目前學生，不強制切換選項。
+  if(studentSelect.selectedIndex<0&&drawing){
+    const option=document.createElement("option");option.value=String(state.selectedStudent);
+    option.textContent=`${String(state.selectedStudent+1).padStart(2,"0")}｜${state.students[state.selectedStudent].name}（抽卡中）`;
+    studentSelect.appendChild(option);studentSelect.value=String(state.selectedStudent);
+  }
+}
+function setDrawStudentFilter(filter){
+  if(drawing)return;
+  drawStudentFilter=filter;
+  renderStudentSelect();
+  render();
+}
+showEligibleBtn.addEventListener("click",()=>setDrawStudentFilter("eligible"));
+showAllDrawBtn.addEventListener("click",()=>setDrawStudentFilter("all"));
 
 
 studentSelect.addEventListener("change",()=>{
 
+  if(studentSelect.disabled||studentSelect.value==="")return;
   state.selectedStudent=
     Number(studentSelect.value);
 
@@ -1933,6 +2495,7 @@ drawButton.addEventListener("click",()=>{
 
 
     saveState();
+    try{addDrawToCollection(student,card)}catch(e){alert("抽卡已完成，但收藏更新失敗；請立即備份並檢查收藏資料："+e.message)}
 
 
     /*
@@ -2217,15 +2780,28 @@ const studentSearch=document.getElementById("studentSearch");
 function setMode(mode){
   if(drawing){alert("抽卡動畫進行中，請稍候再切換模式。");return;}
   document.body.dataset.mode=mode;
+  if(mode==="draw")drawStudentFilter="eligible";
+  document.getElementById("collectionSection").classList.toggle("v2-hidden",mode!=="collection");
+  document.getElementById("redeemSection").classList.toggle("v2-hidden",mode!=="redeem");
+  document.getElementById("redeemModeBtn").classList.toggle("active",mode==="redeem");
+  document.getElementById("redeemModeBtn").setAttribute("aria-pressed",String(mode==="redeem"));
+  document.getElementById("collectionModeBtn").classList.toggle("active",mode==="collection");
+  document.getElementById("collectionModeBtn").setAttribute("aria-pressed",String(mode==="collection"));
+  renderStudentSelect();
   adminModeBtn.classList.toggle("active",mode==="admin");
   drawModeBtn.classList.toggle("active",mode==="draw");
   adminModeBtn.setAttribute("aria-pressed",String(mode==="admin"));
   drawModeBtn.setAttribute("aria-pressed",String(mode==="draw"));
   resetCardDisplay();
+  // 切換專區後，立即同步目前選取學生的參與次數、抽卡資格與按鈕狀態。
+  // 原版只更新下拉選單，造成畫面仍停留在上一位學生。
+  render();
   window.scrollTo({top:0,behavior:"smooth"});
 }
 adminModeBtn.addEventListener("click",()=>setMode("admin"));
 drawModeBtn.addEventListener("click",()=>setMode("draw"));
+document.getElementById("collectionModeBtn").addEventListener("click",()=>{setMode("collection");scanCollection();});
+document.getElementById("redeemModeBtn").addEventListener("click",()=>{setMode("redeem");renderRedemption();});
 function renderV2(){
   document.getElementById("kpiStudents").textContent=state.students.length;
   document.getElementById("kpiParticipation").textContent=state.students.reduce((n,s)=>n+s.participation,0);
@@ -2438,7 +3014,8 @@ function renderQuickGrid(){
     const progress=document.createElement("div");progress.className="quick-progress";
     const fill=document.createElement("span");fill.style.width=(s.participation*10)+"%";progress.appendChild(fill);
     const status=document.createElement("div");status.className="quick-status";
-    status.textContent=s.draws>=2?"✓ 今日已抽滿":eligible?`🎴 可抽 ${eligible} 張`:s.participation>=5?"已抽1張・繼續累積":`再 ${5-s.participation} 次可抽卡`;
+    status.textContent=s.draws>=2?"✓ 今日已抽滿":eligible?`✓ 可抽 ${eligible} 張`:s.participation>=5?"繼續累積參與次數":`再 ${5-s.participation} 次可抽卡`;
+    status.classList.add(s.draws>=2?"status-done":eligible?"status-ready":"status-waiting");
     const actions=document.createElement("div");actions.className="quick-actions";
     const minus=document.createElement("button");minus.type="button";minus.className="quick-minus";minus.textContent="−1";minus.disabled=s.participation<=s.draws*5;minus.setAttribute("aria-label",`${s.name} 撤銷一次`);
     minus.addEventListener("click",()=>adjustQuickParticipation(index,-1));
@@ -2482,7 +3059,7 @@ function ensureCurrentDay(){
   return true;
 }
 const oldRender=render;
-render=function(){ensureCurrentDay();oldRender();renderV2()};
+render=function(){ensureCurrentDay();renderStudentSelect();oldRender();renderV2()};
 // 網頁不關閉而跨午夜、切回分頁、iPad 重新喚醒時都會更新。
 setInterval(()=>{if(state.date!==todayKey())render()},30000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)render()});
@@ -2492,7 +3069,7 @@ document.addEventListener("click",()=>{
   if(state.date!==todayKey()&&!drawing)render();
 },true);
 function downloadBackup(){
-  const payload={format:"tomato-reward-backup-v2",exportedAt:new Date().toISOString(),current:state,archives:readArchives()};
+  const payload={format:"tomato-reward-backup-v2",exportedAt:new Date().toISOString(),current:state,archives:readArchives(),collection:getCollection()};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;
   a.download=`tomato-reward-backup-${todayKey()}.json`;document.body.appendChild(a);a.click();a.remove();
@@ -2536,10 +3113,248 @@ document.getElementById("backupFileInput").addEventListener("change",async event
     localStorage.setItem(STORAGE_KEY,JSON.stringify(localToday));
     localStorage.setItem(ARCHIVE_KEY,JSON.stringify(merged));
     state=localToday;
+    // 既有匯入功能只合併歷史日期，不默默覆蓋收藏；收藏需透過蒐集冊的獨立匯入操作。
     renderStudentSelect();resetCardDisplay();render();
     alert(`歷史資料匯入完成！新增 ${added} 天，略過同日期 ${skipped} 天。今天的資料沒有被覆蓋。`);
   }catch(e){alert(`匯入失敗：${e.message}`)}
 });
+
+
+/* ===== 2.6.5 第一階段：獨立初始收藏建檔，不修改既有抽卡狀態 ===== */
+const COLLECTION_KEY="tomato_class_reward_collection_v265";
+let collectionDraft=[];
+let collectionProtectionReady=false;
+const colEsc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+function collectionScanRows(){
+  const days=[...readArchives(),state];
+  const rows=[];
+  const seenDates=new Set();
+  for(const day of days){
+    if(!day||!day.date||seenDates.has(day.date))continue;
+    seenDates.add(day.date);
+    for(const [i,h] of (day.history||[]).entries()){
+      const card=CARD_DATA.find(c=>c.id===Number(h.cardId));
+      if(!card)continue;
+      // 舊版歷史還原可能將來源日期的抽卡再寫入今天，避免直接雙重計入。
+      const source=String(h.time||"").match(/^\[來源 (\d{4}-\d{2}-\d{2})\]/);
+      if(source&&days.some(d=>d.date===source[1]))continue;
+      const id=Number(h.studentId);
+      const name=String(h.studentName||day.students?.find(st=>st.id===id)?.name||`${id}號`);
+      rows.push({date:day.date,idx:i,id,name,cardId:card.id,cardName:card.name,time:String(h.time||"")});
+    }
+  }
+  return rows;
+}
+function scanCollection(){
+  const el=document.getElementById("collectionRows");
+  const existing=localStorage.getItem(COLLECTION_KEY);
+  if(existing){
+    document.getElementById("collectionStatus").textContent="已存在初始收藏資料。為避免重複建檔，本測試版不允許再次建立；請先保留備份並使用後續版本管理。";
+    el.replaceChildren();document.getElementById("collectionCommitBtn").disabled=true;
+    document.getElementById("collectionDashboard").hidden=false;
+    document.getElementById("collectionSetup").hidden=true;
+    renderCollectionDashboard();return;
+  }
+  document.getElementById("collectionDashboard").hidden=true;
+  document.getElementById("collectionSetup").hidden=false;
+  const rows=collectionScanRows(),map=new Map();
+  for(const r of rows){
+    const key=`${r.id}|${r.name}|${r.cardId}`;
+    if(!map.has(key))map.set(key,{id:r.id,name:r.name,cardId:r.cardId,cardName:r.cardName,obtained:0,used:0});
+    map.get(key).obtained++;
+  }
+  collectionDraft=[...map.values()].sort((a,b)=>a.id-b.id||a.cardId-b.cardId);
+  el.replaceChildren();
+  for(const [i,r] of collectionDraft.entries()){
+    const tr=document.createElement("tr");
+    const who=document.createElement("td");who.textContent=`${String(r.id).padStart(2,"0")}號 ${r.name}`;
+    const card=document.createElement("td");card.textContent=r.cardName;
+    const obtained=document.createElement("td");obtained.textContent=String(r.obtained);
+    const used=document.createElement("td");
+    const input=document.createElement("input");input.type="number";input.min="0";input.max=String(r.obtained);input.value="0";input.style.cssText="width:80px;min-height:42px;padding:6px;border:1px solid #ccc;border-radius:8px";
+    const remain=document.createElement("td");remain.textContent=String(r.obtained);
+    input.addEventListener("input",()=>{const n=Number(input.value);r.used=Number.isInteger(n)&&n>=0&&n<=r.obtained?n:NaN;remain.textContent=Number.isFinite(r.used)?String(r.obtained-r.used):"請修正";});
+    used.appendChild(input);tr.append(who,card,obtained,used,remain);el.appendChild(tr);
+  }
+  document.getElementById("collectionCommitBtn").disabled=!collectionDraft.length;
+  document.getElementById("collectionStatus").textContent=`掃描 ${seenDatesLabel()}：共 ${rows.length} 筆可辨識抽卡紀錄、${collectionDraft.length} 組學生卡牌。舊版紀錄無唯一 ID，請核對重複、姓名變更及已使用數量。`;
+  collectionProtectionReady=false;
+}
+function seenDatesLabel(){return `${readArchives().length+1} 個日期來源`}
+function collectionProtect(){
+  const payload={format:"tomato-reward-backup-v2.6.5-stage1-protection",exportedAt:new Date().toISOString(),current:state,archives:readArchives(),previousCollection:localStorage.getItem(COLLECTION_KEY),restoreSafety:localStorage.getItem(typeof RESTORE_SAFETY_KEY!=="undefined"?RESTORE_SAFETY_KEY:"tomato_reward_restore_safety")};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const a=document.createElement("a"),url=URL.createObjectURL(blob);a.href=url;a.download=`tomato-collection-before-init-${todayKey()}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);
+  collectionProtectionReady=true;
+  document.getElementById("collectionStatus").textContent="已啟動完整保護備份下載，請確認檔案已儲存，再進行初始建檔。";
+}
+function commitCollection(){
+  if(localStorage.getItem(COLLECTION_KEY)){alert("已有初始收藏，已阻止重複建立。");return;}
+  if(!collectionDraft.length){alert("尚無可建立的紀錄。");return;}
+  if(collectionDraft.some(r=>!Number.isInteger(r.used)||r.used<0||r.used>r.obtained)){alert("已使用數量不正確，請修正。");return;}
+  if(!collectionProtectionReady){alert("請先點選『下載建檔前完整保護備份』並確認下載完成。");return;}
+  if(!confirm(`將建立 ${collectionDraft.length} 組初始卡牌庫存。\n請確認所有學生、卡片及過去已使用數量都已核對。\n建立後不會自動再匯入相同歷史紀錄。確定繼續？`))return;
+  const payload={schema:1,initializedAt:new Date().toISOString(),source:"historical-review",cards:collectionDraft.map(r=>({...r,remaining:r.obtained-r.used})),redemptions:[],note:"第二階段測試資料；已連動抽卡，兌換尚未加入"};
+  try{localStorage.setItem(COLLECTION_KEY,JSON.stringify(payload));scanCollection();alert("初始收藏已建立。已啟用抽卡自動增加收藏；兌換功能尚未加入。");}
+  catch(e){alert(`建立失敗：${e.message}`)}
+}
+document.getElementById("collectionScanBtn").addEventListener("click",scanCollection);
+document.getElementById("collectionProtectBtn").addEventListener("click",collectionProtect);
+document.getElementById("collectionCommitBtn").addEventListener("click",commitCollection);
+
+/* 2.6.5 第二階段：在既有初始收藏上新增獨立個人庫存管理 */
+let collectionAllVisible=false;
+function getCollection(){try{const v=JSON.parse(localStorage.getItem(COLLECTION_KEY)||"null");return v&&Array.isArray(v.cards)?v:null;}catch(_){return null}}
+function putCollection(v){localStorage.setItem(COLLECTION_KEY,JSON.stringify(v));}
+function addDrawToCollection(student,card){
+ const c=getCollection();if(!c)return;
+ let row=c.cards.find(r=>Number(r.id)===Number(student.id)&&Number(r.cardId)===Number(card.id));
+ if(!row){row={id:student.id,name:student.name,cardId:card.id,cardName:card.name,obtained:0,used:0,remaining:0};c.cards.push(row)}
+ row.obtained++;row.remaining++;row.name=student.name;
+ c.updatedAt=new Date().toISOString();putCollection(c);
+}
+function collectionStudents(){return state.students.map((s,i)=>({id:i+1,name:s.name}))}
+function renderCollectionDashboard(){
+ const c=getCollection();if(!c)return;
+ const select=document.getElementById("collectionStudent"),previous=select.value;
+ select.replaceChildren();
+ collectionStudents().forEach(s=>{const o=document.createElement("option");o.value=String(s.id);o.textContent=`${String(s.id).padStart(2,"0")}號 ${s.name}`;select.append(o)});
+ if([...select.options].some(o=>o.value===previous))select.value=previous;
+ const sid=Number(select.value),rows=c.cards.filter(r=>Number(r.id)===sid&&Number(r.remaining)>0).sort((a,b)=>a.cardId-b.cardId);
+ const total=rows.reduce((n,r)=>n+Number(r.remaining),0);
+ document.getElementById("collectionSummary").textContent=`${select.selectedOptions[0]?.textContent||""}｜目前持有 ${rows.length} 種、${total} 張卡牌（僅計算尚未使用的卡片）。`;
+ const grid=document.getElementById("collectionCardGrid");grid.replaceChildren();
+ if(!rows.length){const p=document.createElement("p");p.className="empty";p.textContent="這位學生目前沒有尚未使用的卡片。";grid.append(p)}
+ for(const r of rows){
+  const tile=document.createElement("div");tile.className="collection-tile";
+  const card=CARD_DATA.find(v=>v.id===Number(r.cardId));
+  if(document.getElementById("collectionView").value==="image"&&card){const img=document.createElement("img");img.src=card.image;img.alt=card.name;img.loading="lazy";tile.append(img)}
+  const title=document.createElement("strong");title.textContent=r.cardName;tile.append(title);
+  const meta=document.createElement("div");meta.className="collection-meta";
+  const tier=document.createElement("span");tier.className="collection-tier";tier.textContent=card?`★ ${card.stars} 星`:`收藏卡`;
+  const stock=document.createElement("span");stock.className="collection-stock";stock.textContent=`現有 ${r.remaining} 張`;
+  meta.append(tier,stock);tile.append(meta);
+  const count=document.createElement("span");count.className="collection-total";count.textContent=`累計取得 ${r.obtained} 張｜已使用 ${r.used} 張`;tile.append(count);grid.append(tile);
+ }
+ document.getElementById("collectionAllWrap").hidden=!collectionAllVisible;
+ document.getElementById("collectionAllBtn").textContent=collectionAllVisible?"返回個人蒐集冊":"👥 全班總覽";
+ const tbody=document.getElementById("collectionAllRows");tbody.replaceChildren();
+ for(const s of collectionStudents()){
+  const owned=c.cards.filter(r=>Number(r.id)===s.id&&Number(r.remaining)>0);
+  const tr=document.createElement("tr");
+  [String(s.id).padStart(2,"0"),s.name,String(owned.length),String(owned.reduce((n,r)=>n+Number(r.remaining),0))].forEach(value=>{const td=document.createElement("td");td.textContent=value;tr.append(td)});
+  tr.style.cursor="pointer";tr.addEventListener("click",()=>{select.value=String(s.id);collectionAllVisible=false;renderCollectionDashboard()});tbody.append(tr);
+ }
+ grid.hidden=collectionAllVisible;
+}
+function downloadCollectionFile(name,text,mime){const blob=new Blob([text],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000)}
+function csvCell(v){const s=String(v??"");return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+function exportCollectionCSV(single){const c=getCollection();if(!c){alert("請先建立初始收藏");return}const sid=Number(document.getElementById("collectionStudent").value);
+ const header=["座號","姓名","卡牌編號","卡牌名稱","累計取得","過去已使用","目前持有"];
+ const rows=c.cards.filter(r=>!single||Number(r.id)===sid).sort((a,b)=>a.id-b.id||a.cardId-b.cardId).map(r=>[String(r.id).padStart(2,"0"),state.students[Number(r.id)-1]?.name||r.name,r.cardId,r.cardName,r.obtained,r.used,r.remaining]);
+ downloadCollectionFile(`tomato-collection-${single?String(sid).padStart(2,"0"):"all"}-${todayKey()}.csv`,"\ufeff"+[header,...rows].map(row=>row.map(csvCell).join(",")).join("\r\n"),"text/csv;charset=utf-8")}
+document.getElementById("collectionStudent").addEventListener("change",renderCollectionDashboard);
+document.getElementById("collectionView").addEventListener("change",renderCollectionDashboard);
+document.getElementById("collectionAllBtn").addEventListener("click",()=>{collectionAllVisible=!collectionAllVisible;renderCollectionDashboard()});
+document.getElementById("collectionExportStudent").addEventListener("click",()=>exportCollectionCSV(true));
+document.getElementById("collectionExportAll").addEventListener("click",()=>exportCollectionCSV(false));
+document.getElementById("collectionBackup").addEventListener("click",()=>{const c=getCollection();if(!c)return alert("尚未建立收藏");downloadCollectionFile(`tomato-collection-backup-${todayKey()}.json`,JSON.stringify({format:"tomato-collection-v265",exportedAt:new Date().toISOString(),collection:c},null,2),"application/json")});
+document.getElementById("collectionImport").addEventListener("click",()=>document.getElementById("collectionImportFile").click());
+document.getElementById("collectionImportFile").addEventListener("change",async e=>{const f=e.target.files?.[0];e.target.value="";if(!f)return;try{if(f.size>3_000_000)throw Error("檔案過大");const b=JSON.parse(await f.text());if(b.format!=="tomato-collection-v265"||!b.collection||!Array.isArray(b.collection.cards)||!b.collection.cards.every(r=>Number.isInteger(r.id)&&r.id>0&&CARD_DATA.some(c=>c.id===Number(r.cardId))&&[r.obtained,r.used,r.remaining].every(v=>Number.isInteger(v)&&v>=0)&&r.obtained-r.used===r.remaining))throw Error("收藏備份格式或庫存不正確");if(!confirm("匯入收藏備份將覆蓋目前的收藏庫存。系統會先下載目前的完整備份，請確認檔案已保存後再繼續。"))return;
+try{downloadBackup()}catch(backupError){throw Error("匯入已取消：無法建立保護備份（"+backupError.message+"）")}
+if(!confirm("請確認已下載並妥善保存剛才的完整 JSON 備份。現在確定覆蓋收藏庫存嗎？"))return;
+putCollection(b.collection);scanCollection();alert("收藏備份已匯入")}catch(err){alert(`匯入失敗：${err.message}`)}});
+
+
+
+/* ===== v2.6.5 第三階段：兌換、撤銷、CSV ===== */
+let redeemBusy=false;
+function redemptionRows(c){return Array.isArray(c?.redemptions)?c.redemptions:[]}
+function renderRedemption(){
+ const c=getCollection(),studentEl=document.getElementById("redeemStudent"),cardEl=document.getElementById("redeemCard");
+ document.getElementById("redeemNotReady").hidden=!!c;
+ document.getElementById("redeemSubmit").disabled=!c;
+ if(!document.getElementById("redeemDate").value)document.getElementById("redeemDate").value=todayKey();
+ const oldStudent=studentEl.value;studentEl.replaceChildren();
+ collectionStudents().forEach(s=>{const o=document.createElement("option");o.value=String(s.id);o.textContent=`${String(s.id).padStart(2,"0")}號 ${s.name}`;studentEl.append(o)});
+ if([...studentEl.options].some(o=>o.value===oldStudent))studentEl.value=oldStudent;
+ renderRedeemCards();renderRedeemHistory();
+}
+function renderRedeemCards(){
+ const c=getCollection(),el=document.getElementById("redeemCard"),sid=Number(document.getElementById("redeemStudent").value),old=el.value;
+ el.replaceChildren();
+ const rows=(c?.cards||[]).filter(r=>Number(r.id)===sid&&Number.isInteger(Number(r.remaining))&&Number(r.remaining)>0).sort((a,b)=>Number(a.cardId)-Number(b.cardId));
+ for(const r of rows){const o=document.createElement("option");o.value=String(r.cardId);o.textContent=`${r.cardName}（剩餘 ${r.remaining} 張）`;el.append(o)}
+ if([...el.options].some(o=>o.value===old))el.value=old;
+ const chosen=rows.find(r=>Number(r.cardId)===Number(el.value));
+ document.getElementById("redeemBalance").textContent=chosen?`目前可兌換：${chosen.cardName} ${chosen.remaining} 張。兌換後立即從蒐集冊扣除。`:'這位學生目前沒有可兌換的卡牌。';
+ document.getElementById("redeemSubmit").disabled=!c||!chosen||redeemBusy;
+}
+function makeRedeemId(){return (typeof crypto!=="undefined"&&crypto.randomUUID)?crypto.randomUUID():`redeem-${Date.now()}-${Math.random().toString(36).slice(2)}`}
+function commitRedemption(){
+ if(redeemBusy)return;
+ const c=getCollection();if(!c)return alert("請先建立收藏");
+ const sid=Number(document.getElementById("redeemStudent").value),cardId=Number(document.getElementById("redeemCard").value);
+ const rawQty=document.getElementById("redeemQty").value,qty=Number(rawQty),date=document.getElementById("redeemDate").value,detail=document.getElementById("redeemDetail").value.trim();
+ const student=state.students.find(s=>Number(s.id)===sid),card=CARD_DATA.find(x=>x.id===cardId);
+ const row=c.cards.find(r=>Number(r.id)===sid&&Number(r.cardId)===cardId);
+ if(!student||!card||!row)return alert("學生或卡牌不存在，請重新選擇");
+ if(!rawQty||!Number.isSafeInteger(qty)||qty<1||qty>99)return alert("請輸入1至99的整數張數");
+ if(!Number.isSafeInteger(row.remaining)||row.remaining<qty)return alert("持有卡牌不足，無法兌換");
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(Date.parse(date+"T12:00:00")))return alert("請選擇有效日期");
+ if(!detail)return alert("請填寫兌換內容");
+ if(!confirm(`確定為 ${student.name} 兌換「${card.name}」${qty} 張？\n使用內容：${detail}\n兌換後剩餘 ${row.remaining-qty} 張。`))return;
+ redeemBusy=true;document.getElementById("redeemSubmit").disabled=true;
+ try{
+  const latest=getCollection();if(!latest)throw new Error("收藏資料不存在");
+  const current=latest.cards.find(r=>Number(r.id)===sid&&Number(r.cardId)===cardId);
+  if(!current||!Number.isSafeInteger(current.remaining)||current.remaining<qty)throw new Error("庫存已變動或不足");
+  const id=makeRedeemId();if(redemptionRows(latest).some(r=>r.id===id))throw new Error("兌換編號重複");
+  current.remaining-=qty;current.used=Number(current.used||0)+qty;
+  if(!Array.isArray(latest.redemptions))latest.redemptions=[];
+  latest.redemptions.unshift({id,date,createdAt:new Date().toISOString(),studentId:sid,studentName:student.name,cardId,cardName:card.name,quantity:qty,detail,status:"active"});
+  latest.updatedAt=new Date().toISOString();putCollection(latest);
+  document.getElementById("redeemDetail").value="";document.getElementById("redeemQty").value="1";
+  alert("兌換成功！卡牌庫存已更新，紀錄已保存。");
+ }catch(e){alert(`兌換未完成：${e.message}`)}finally{redeemBusy=false;renderRedeemCards();renderRedeemHistory()}
+}
+function undoRedemption(id){
+ if(redeemBusy)return;const c=getCollection();if(!c)return;
+ const r=redemptionRows(c).find(x=>x.id===id);if(!r||r.status!=="active")return alert("這筆兌換已撤銷或不存在");
+ const reason=prompt(`確定撤銷 ${r.studentName} 的 ${r.cardName} ${r.quantity} 張兌換？\n請輸入撤銷原因：`);
+ if(reason===null)return;if(!reason.trim())return alert("請填寫撤銷原因");
+ redeemBusy=true;
+ try{
+  const latest=getCollection(),entry=redemptionRows(latest).find(x=>x.id===id);
+  if(!entry||entry.status!=="active")throw new Error("紀錄已變動，無法重複撤銷");
+  const row=latest.cards.find(x=>Number(x.id)===Number(entry.studentId)&&Number(x.cardId)===Number(entry.cardId));
+  if(!row)throw new Error("找不到原始卡牌庫存，請先檢查備份");
+  const qty=Number(entry.quantity);
+  if(!Number.isSafeInteger(qty)||qty<1||!Number.isSafeInteger(row.used)||row.used<qty)throw new Error("庫存資料不一致，已阻止撤銷");
+  row.remaining+=qty;row.used-=qty;entry.status="cancelled";entry.cancelledAt=new Date().toISOString();entry.cancelReason=reason.trim();
+  latest.updatedAt=new Date().toISOString();putCollection(latest);alert("已撤銷兌換並補回卡片，原始紀錄保留。");
+ }catch(e){alert(`撤銷失敗：${e.message}`)}finally{redeemBusy=false;renderRedeemCards();renderRedeemHistory()}
+}
+function renderRedeemHistory(){
+ const c=getCollection(),tbody=document.getElementById("redeemHistory");tbody.replaceChildren();
+ const rows=[...redemptionRows(c)].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+ if(!rows.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=7;td.textContent="尚無兌換紀錄";tr.append(td);tbody.append(tr);return}
+ for(const r of rows){const tr=document.createElement("tr");
+  [r.date,`${String(r.studentId).padStart(2,"0")}號 ${r.studentName}`,r.cardName,String(r.quantity),r.detail,r.status==="cancelled"?`已撤銷（${r.cancelReason||""}）`:"已兌換"].forEach(v=>{const td=document.createElement("td");td.textContent=v;tr.append(td)});
+  const td=document.createElement("td");if(r.status==="active"){const btn=document.createElement("button");btn.type="button";btn.textContent="撤銷兌換";btn.addEventListener("click",()=>undoRedemption(r.id));td.append(btn)}tr.append(td);tbody.append(tr);
+ }
+}
+function exportRedemptions(){
+ const c=getCollection();if(!c)return alert("尚無收藏資料");
+ const header=["兌換編號","兌換日期","登記時間","座號","學生姓名","卡牌編號","卡牌名稱","兌換張數","兌換內容","狀態","撤銷時間","撤銷原因"];
+ const rows=redemptionRows(c).map(r=>[r.id,r.date,r.createdAt,r.studentId,r.studentName,r.cardId,r.cardName,r.quantity,r.detail,r.status==="cancelled"?"已撤銷":"已兌換",r.cancelledAt||"",r.cancelReason||""]);
+ downloadCollectionFile(`tomato-redemptions-${todayKey()}.csv`,"\ufeff"+[header,...rows].map(r=>r.map(csvCell).join(",")).join("\r\n"),"text/csv;charset=utf-8");
+}
+document.getElementById("redeemStudent").addEventListener("change",renderRedeemCards);
+document.getElementById("redeemCard").addEventListener("change",renderRedeemCards);
+document.getElementById("redeemSubmit").addEventListener("click",commitRedemption);
+document.getElementById("redeemCSV").addEventListener("click",exportRedemptions);
+document.getElementById("redeemBackup").addEventListener("click",downloadBackup);
 
 /* ---------- 初始化 ---------- */
 
